@@ -1,0 +1,1836 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Proposal Word Lab</title>
+<meta name="description" content="Interactive MS Word lab for writing a research proposal (Windows / Mac, Thai / English)">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=Sarabun:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500;600&display=swap">
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+img{max-width:100%}[hidden]{display:none!important}
+/* Layout: sticky toolbar on top, one view at a time below; document panes look like A4 sheets on a desk, with cm rulers. */
+:root{
+  --desk:#EEF1F5; --paper:#FFFFFF; --ink:#16233B; --muted:#5A667A; --line:#D6DCE5; --line2:#E7EBF1;
+  --accent:#1E5BB8; --accent-ink:#FFFFFF; --accent-soft:#E3ECFA;
+  --mark:#FFE873; --mark-ink:#16233B; --ok:#1C7C50; --ok-soft:#DFF3E8; --warn:#B4520F; --warn-soft:#FCEBDD;
+  --ins:#1D5FC2; --del:#C0392B; --field:#E3E6EB; --chip:#F4F6F9;
+  --shadow:0 1px 2px rgba(22,35,59,.08),0 6px 20px rgba(22,35,59,.06);
+  --f-display:"Bai Jamjuree","Sarabun","Leelawadee UI","Thonburi",system-ui,sans-serif;
+  --f-body:"Sarabun","Leelawadee UI","Thonburi","Tahoma",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --desk:#0E131C; --paper:#161D29; --ink:#E5EAF2; --muted:#9AA6B9; --line:#2A3445; --line2:#222B3A;
+  --accent:#6FA6FF; --accent-ink:#0B1220; --accent-soft:#1B2A44;
+  --mark:#7A6410; --mark-ink:#FFF6CC; --ok:#5FD39A; --ok-soft:#14301F; --warn:#F2A15E; --warn-soft:#3A2414;
+  --ins:#7FB0FF; --del:#FF8A7D; --field:#2A3240; --chip:#1D2533;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.3); color-scheme:dark }}
+:root[data-theme="dark"]{
+  --desk:#0E131C; --paper:#161D29; --ink:#E5EAF2; --muted:#9AA6B9; --line:#2A3445; --line2:#222B3A;
+  --accent:#6FA6FF; --accent-ink:#0B1220; --accent-soft:#1B2A44;
+  --mark:#7A6410; --mark-ink:#FFF6CC; --ok:#5FD39A; --ok-soft:#14301F; --warn:#F2A15E; --warn-soft:#3A2414;
+  --ins:#7FB0FF; --del:#FF8A7D; --field:#2A3240; --chip:#1D2533;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.3); color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--desk);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.6;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+a{color:var(--accent)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);line-height:1.25;text-wrap:balance;margin:0}
+p{margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.muted{color:var(--muted)}
+.small{font-size:.875rem}
+kbd,.kbd{font-family:var(--f-mono);font-size:.78rem;font-weight:600;display:inline-block;padding:.05em .45em;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;background:var(--paper);color:var(--ink);white-space:nowrap;line-height:1.5}
+.keys{display:inline-flex;flex-wrap:wrap;gap:.25rem;align-items:center}
+.keys .plus{color:var(--muted);font-size:.75rem}
+.keys .or{color:var(--muted);font-size:.8rem;margin:0 .2rem}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:10px}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto;min-width:0}
+.brand .mark{width:36px;height:36px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:700 22px/1 var(--f-display);flex:none}
+.brand b{font-family:var(--f-display);font-size:1.05rem;display:block;line-height:1.2}
+.brand span{font-size:.8rem;color:var(--muted);display:block;line-height:1.3}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--chip)}
+.seg button{border:0;background:transparent;padding:5px 11px;font-size:.85rem;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.toggles{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.toggles label{font-size:.75rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+nav.tabs{border-top:1px solid var(--line2)}
+nav.tabs .wrap{display:flex;gap:2px;overflow-x:auto;padding-block:0;scrollbar-width:thin}
+nav.tabs a{flex:none;text-decoration:none;color:var(--muted);padding:9px 12px;font-weight:600;font-size:.92rem;border-bottom:3px solid transparent}
+nav.tabs a[aria-current="page"]{color:var(--accent);border-bottom-color:var(--accent)}
+
+main{padding-block:24px 48px}
+.view{display:grid;gap:22px}
+.head{display:grid;gap:6px;max-width:760px}
+.head h2{font-size:clamp(1.4rem,3vw,1.9rem)}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:18px}
+.btn{border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 12px;font-weight:600;font-size:.9rem;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.status{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:.85rem;padding:3px 10px;border-radius:999px;background:var(--warn-soft);color:var(--warn)}
+.status.ok{background:var(--ok-soft);color:var(--ok)}
+.task{border-left:4px solid var(--accent);background:var(--accent-soft);padding:10px 14px;border-radius:0 8px 8px 0;font-size:.95rem}
+.task b{font-family:var(--f-display)}
+.note{font-size:.88rem;color:var(--muted)}
+input[type=text],input[type=number],select,textarea{background:var(--paper);border:1px solid var(--line);border-radius:7px;padding:5px 9px}
+input[type=range]{accent-color:var(--accent)}
+
+/* start view */
+.hero{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:28px;align-items:center}
+.hero .kick{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.hero h1{font-size:clamp(1.7rem,4.2vw,2.7rem);margin:.3rem 0 .7rem}
+.hero .lead{font-size:1.05rem;max-width:60ch}
+.hero .src{font-size:.82rem;color:var(--muted);margin-top:.8rem;max-width:62ch}
+.sheet{background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:4px;aspect-ratio:210/297;max-width:100%;padding:12% 10% 9% 14%;position:relative;font-size:.62rem;line-height:1.5;overflow:hidden}
+.sheet .ln{height:.42em;background:var(--line2);border-radius:2px;margin:.55em 0}
+.sheet .h{font:700 1.05em var(--f-display);color:var(--ink);margin:.9em 0 .4em;display:flex;gap:.6em;align-items:baseline}
+.sheet .h i{font-style:normal;color:var(--accent)}
+.sheet .pil{position:absolute;right:6%;color:var(--accent);font-size:1.2em;opacity:.8}
+.sheet .marg{position:absolute;inset:0;pointer-events:none;border:1px dashed var(--line);margin:12% 10% 9% 14%}
+.sheet .tag{position:absolute;font:600 .9em var(--f-mono);color:var(--muted);background:var(--paper);padding:0 3px}
+.flow{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;counter-reset:f}
+.flow button{counter-increment:f;text-align:left;border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:12px 14px;display:grid;gap:2px;position:relative}
+.flow button::before{content:counter(f,decimal-leading-zero);font:600 .75rem var(--f-mono);color:var(--accent)}
+.flow button b{font-family:var(--f-display);font-size:1rem}
+.flow button span{font-size:.85rem;color:var(--muted)}
+.flow button:hover{border-color:var(--accent)}
+
+/* ribbon */
+.ribbon{background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+.rtabs{display:flex;gap:0;overflow-x:auto;border-bottom:1px solid var(--line);background:var(--chip);padding:0 6px}
+.rtabs button{border:0;background:none;padding:9px 14px;font-weight:600;font-size:.92rem;color:var(--muted);border-bottom:3px solid transparent;flex:none}
+.rtabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent);background:var(--paper)}
+.rtabs button.file{color:var(--accent)}
+.rbody{display:flex;gap:0;overflow-x:auto;padding:10px 6px 0}
+.rgroup{display:flex;flex-direction:column;border-right:1px solid var(--line2);padding:0 8px;flex:none}
+.rgroup:last-child{border-right:0}
+.rgroup .btns{display:flex;gap:4px;flex:1}
+.rgroup .gl{font-size:.72rem;color:var(--muted);text-align:center;padding:4px 0 6px}
+.rbtn{border:1px solid transparent;background:none;border-radius:6px;padding:6px 6px 4px;width:88px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:.74rem;line-height:1.25;text-align:center;color:var(--ink)}
+.rbtn .ic{width:34px;height:30px;display:grid;place-items:center;font:700 .95rem var(--f-mono);color:var(--accent);background:var(--accent-soft);border-radius:6px}
+.rbtn:hover{border-color:var(--line)}
+.rbtn[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.rbtn.hit{outline:2px solid var(--mark);outline-offset:1px}
+.rsearch{display:flex;gap:8px;align-items:center;padding:10px 12px;border-top:1px solid var(--line2);background:var(--chip)}
+.rsearch input{flex:1;min-width:0}
+.results{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 12px;background:var(--chip)}
+.results button{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:3px 10px;font-size:.82rem}
+.detail{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:18px}
+.detail h3{font-size:1.35rem;display:flex;gap:10px;align-items:center}
+.detail h3 .ic{font:700 1rem var(--f-mono);color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:2px 8px}
+.detail .path{font-family:var(--f-body);background:var(--chip);border:1px solid var(--line2);border-radius:8px;padding:10px 12px;margin-top:6px}
+.detail .lbl{font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-top:12px}
+.detail .tip{background:var(--mark);color:var(--mark-ink);border-radius:8px;padding:10px 12px}
+.oscmp{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;font-size:.88rem;margin-top:6px}
+.oscmp .os{font-weight:700;font-size:.75rem;color:var(--muted)}
+.oscmp .cur{color:var(--accent)}
+
+/* labs */
+.labnav{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px}
+.labnav button{display:flex;gap:10px;align-items:flex-start;text-align:left;border:1px solid var(--line);background:var(--paper);border-radius:10px;padding:10px}
+.labnav button .ic{flex:none;width:34px;height:34px;border-radius:7px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);font:700 .9rem var(--f-mono)}
+.labnav button b{display:block;font-family:var(--f-display);font-size:.95rem;line-height:1.3}
+.labnav button span{font-size:.8rem;color:var(--muted);line-height:1.35;display:block}
+.labnav button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.labnav .okdot{margin-left:auto;color:var(--ok);font-weight:700}
+.lab{display:grid;gap:14px}
+.labhead{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.labhead h3{font-size:1.3rem}
+.split{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:14px}
+.split.r{grid-template-columns:minmax(0,1fr) minmax(0,280px)}
+.doc{background:var(--paper);border:1px solid var(--line);border-radius:4px;box-shadow:var(--shadow);padding:28px 34px 28px 44px;min-height:200px;font-family:var(--f-body);font-size:1.02rem;line-height:1.55;min-width:0}
+.doc:focus{outline:2px solid var(--accent-soft)}
+.side{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;min-width:0;font-size:.92rem}
+.side h4{font:700 .78rem var(--f-display);text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px}
+.toolbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--chip);border:1px solid var(--line);border-radius:10px;padding:8px}
+.toolbar .sep{width:1px;align-self:stretch;background:var(--line);margin:0 4px}
+.stylebtn{border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:4px 10px;display:grid;line-height:1.2;text-align:left;min-width:92px}
+.stylebtn b{font-family:var(--f-display);font-size:.9rem}
+.stylebtn small{font:500 .66rem var(--f-mono);color:var(--muted)}
+.stylebtn.on{border-color:var(--accent);background:var(--accent-soft)}
+
+/* styles lab */
+.p{padding:3px 8px;margin:1px -8px;border-radius:4px;cursor:pointer;border-left:3px solid transparent}
+.p.sel{background:var(--accent-soft);border-left-color:var(--accent)}
+.p.normal{font-size:1rem}
+.p.fake{font-weight:700;font-size:1.08rem}
+.p.h1{font:700 1.3rem var(--f-display);margin-top:12px;color:var(--ink)}
+.p.h2{font:700 1.1rem var(--f-display);margin-top:6px}
+.p.h3{font:600 1.02rem var(--f-display);font-style:italic}
+.p .num{color:var(--accent);margin-right:.5em;font-style:normal}
+.p .tagS{float:right;font:500 .64rem var(--f-mono);color:var(--muted);margin-top:.4em}
+.toc{border:1px dashed var(--line);border-radius:4px;padding:10px 12px;margin-bottom:14px;background:var(--chip)}
+.toc.stale{border-color:var(--warn)}
+.toc .t{font:700 1rem var(--f-display);margin-bottom:4px}
+.toc .e{display:flex;gap:6px;font-size:.92rem}
+.toc .e .dots{flex:1;border-bottom:1px dotted var(--muted);margin-bottom:.45em}
+.toc .e.l2{padding-left:1.2em}.toc .e.l3{padding-left:2.4em}
+.nav .ni{display:flex;gap:4px;align-items:center;padding:3px 4px;border-radius:5px;cursor:pointer;font-size:.88rem}
+.nav .ni:hover{background:var(--chip)}
+.nav .ni.sel{background:var(--accent-soft)}
+.nav .ni.l2{padding-left:16px}.nav .ni.l3{padding-left:28px}
+.nav .ni span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nav .mv{border:0;background:none;color:var(--muted);padding:0 3px;font-size:.8rem}
+.nav .empty{color:var(--muted);font-size:.85rem}
+
+/* captions lab */
+.blk{border:1px solid transparent;border-radius:6px;padding:8px;margin:4px -8px;cursor:pointer}
+.blk.sel{border-color:var(--accent);background:var(--accent-soft)}
+.fig{display:grid;justify-items:center;gap:6px}
+.figbox{width:min(260px,100%);aspect-ratio:16/8;border-radius:4px;background:linear-gradient(160deg,var(--accent-soft),var(--line2));display:grid;place-items:center;color:var(--muted);font:600 .8rem var(--f-mono);border:1px solid var(--line)}
+.cap{font-size:.95rem;text-align:center}
+.cap b{font-weight:700}
+.fld{background:var(--field);border-radius:2px;padding:0 2px}
+.fld.stale{background:var(--warn-soft);color:var(--warn);box-shadow:inset 0 -2px 0 var(--warn)}
+.fld.err{background:var(--warn-soft);color:var(--del);font-weight:700}
+.code{font-family:var(--f-mono);font-size:.82em}
+table.mini{border-collapse:collapse;margin:4px auto;font-size:.85rem}
+table.mini td,table.mini th{border:1px solid var(--line);padding:2px 10px}
+table.mini th{background:var(--chip)}
+
+/* marks lab */
+.mk{color:var(--accent);opacity:.75;font-family:var(--f-mono);font-size:.8em}
+.mk.sp{opacity:.6}
+.tabc{display:inline-block;width:2.2em}
+.pbreak{display:block;text-align:center;color:var(--muted);font:600 .72rem var(--f-mono);border-top:1px dashed var(--muted);margin:8px 0;padding-top:2px}
+.hl{background:var(--mark);color:var(--mark-ink);border-radius:2px}
+.frbox{display:grid;gap:8px}
+.frbox label{font-size:.8rem;color:var(--muted);display:grid;gap:2px}
+.chal{display:grid;gap:6px;font-size:.88rem}
+.chal div{display:flex;gap:8px;align-items:flex-start}
+.chal .ck{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.7rem;font-weight:700}
+.chal .ck.ok{background:var(--ok);border-color:var(--ok);color:var(--paper)}
+.specials{display:flex;gap:4px;flex-wrap:wrap}
+.specials button{font:600 .75rem var(--f-mono);border:1px solid var(--line);background:var(--chip);border-radius:5px;padding:1px 6px}
+
+/* ruler */
+.ruler{position:relative;height:30px;background:var(--paper);border:1px solid var(--line);border-radius:4px;user-select:none;touch-action:none;overflow:hidden}
+.ruler .tk{position:absolute;bottom:0;width:1px;background:var(--muted)}
+.ruler .nm{position:absolute;top:1px;font:500 .62rem var(--f-mono);color:var(--muted);transform:translateX(-50%)}
+.ruler .mkr{position:absolute;transform:translateX(-50%);color:var(--accent);font-size:.8rem;line-height:1;cursor:grab}
+.ruler .tab{position:absolute;bottom:2px;transform:translateX(-50%);font:700 .9rem var(--f-mono);color:var(--ink);cursor:grab;padding:0 3px}
+.ruler .tab.sel{color:var(--accent)}
+.rulerwrap{display:flex;gap:6px;align-items:stretch}
+.tabsel{width:34px;flex:none;border:1px solid var(--line);border-radius:4px;background:var(--chip);font:700 1rem var(--f-mono)}
+.refs p{margin:0 0 .45em;font-size:1rem}
+.refs.hard p{white-space:pre}
+.ctl{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 10px;align-items:center;font-size:.9rem}
+.ctl output{font:600 .82rem var(--f-mono);min-width:4.5em;text-align:right}
+.tabdoc .line{position:relative;height:1.75em;white-space:nowrap}
+.tabdoc .tseg{position:absolute;top:0}
+.tabdoc .leader{position:absolute;top:0;overflow:hidden;color:var(--muted);letter-spacing:.15em}
+.tabdoc .b{font-weight:700}
+.guide{position:absolute;top:0;bottom:0;width:0;border-left:1px dashed var(--accent);opacity:.5;pointer-events:none}
+
+/* table lab */
+.pages{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.pg{background:var(--paper);border:1px solid var(--line);box-shadow:var(--shadow);border-radius:3px;padding:18px 16px 8px;min-width:0;overflow-x:auto}
+.pg .pn{font:500 .7rem var(--f-mono);color:var(--muted);text-align:center;margin-top:6px}
+table.sched{border-collapse:collapse;width:100%;font-size:.8rem;table-layout:fixed}
+table.sched th,table.sched td{border:1px solid var(--line);vertical-align:top}
+table.sched th{background:var(--accent-soft);font-weight:700}
+table.sched .cell{display:block}
+table.sched tr.rep th{background:var(--mark);color:var(--mark-ink)}
+
+/* sections lab */
+.spread{display:flex;flex-wrap:wrap;gap:0;align-items:stretch}
+.thumb{width:92px;aspect-ratio:210/297;background:var(--paper);border:1px solid var(--line);border-radius:3px;box-shadow:var(--shadow);display:flex;flex-direction:column;justify-content:space-between;padding:8px 6px 5px;font-size:.66rem;line-height:1.25;cursor:pointer;position:relative}
+.thumb .tt{font-weight:700;font-family:var(--f-display)}
+.thumb .ft{text-align:center;font:600 .78rem var(--f-mono);border-top:1px dashed var(--line2);padding-top:2px;min-height:1.4em}
+.thumb .sx{position:absolute;top:-9px;left:6px;font:700 .6rem var(--f-mono);background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:0 4px;color:var(--muted)}
+.thumb.selsec{outline:2px solid var(--accent);outline-offset:1px}
+.thumb.s0{background:var(--paper)}
+.gap{width:26px;display:grid;place-items:center;align-self:stretch;margin:0 2px;border:0;background:none;padding:0}
+.gap span{writing-mode:vertical-rl;font:700 .58rem var(--f-mono);color:var(--muted);border:1px dashed var(--line);border-radius:4px;padding:6px 1px;background:var(--chip)}
+.gap.on span{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+.secset{display:grid;gap:10px}
+.secset .row label{font-size:.9rem}
+
+/* track lab */
+.ins{color:var(--ins);text-decoration:underline;text-decoration-thickness:2px;cursor:pointer}
+.del{color:var(--del);text-decoration:line-through;cursor:pointer}
+.ins.cur,.del.cur{background:var(--mark);color:var(--mark-ink)}
+.chbar{border-left:3px solid var(--del);padding-left:10px}
+.balloons{display:grid;gap:8px}
+.balloon{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:6px;padding:8px 10px;font-size:.85rem;background:var(--paper)}
+.balloon.res{opacity:.55}
+.balloon b{font-family:var(--f-display)}
+textarea{width:100%;min-height:96px;resize:vertical}
+
+/* keys */
+.trainer{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,260px);gap:14px}
+.pad{background:var(--paper);border:2px dashed var(--line);border-radius:12px;padding:24px;display:grid;gap:12px;justify-items:center;text-align:center;min-height:220px;align-content:center}
+.pad:focus{border-color:var(--accent);border-style:solid;outline:0}
+.pad .prompt{font:700 clamp(1.2rem,3vw,1.7rem) var(--f-display)}
+.pad .pressed{min-height:2rem}
+.pad.good{border-color:var(--ok);background:var(--ok-soft)}
+.pad.bad{border-color:var(--warn)}
+.score{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.score div{background:var(--chip);border-radius:8px;padding:8px}
+.score b{display:block;font:700 1.4rem var(--f-display);font-variant-numeric:tabular-nums}
+.score span{font-size:.75rem;color:var(--muted)}
+.tblwrap{overflow-x:auto}
+table.keys{border-collapse:collapse;width:100%;font-size:.9rem;min-width:520px}
+table.keys th,table.keys td{border-bottom:1px solid var(--line2);padding:6px 8px;text-align:left;vertical-align:middle}
+table.keys th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+table.keys td.cur{background:var(--accent-soft)}
+table.keys tr.cat td{font:700 .78rem var(--f-display);color:var(--accent);padding-top:14px;text-transform:uppercase;letter-spacing:.05em}
+
+/* setup */
+.setlist{display:grid;gap:10px}
+.setitem{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:12px}
+.setitem b{font-family:var(--f-display)}
+.setitem .src{font-size:.7rem;font-weight:700;color:var(--accent);background:var(--accent-soft);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+.setitem .p2{background:var(--chip);border-radius:7px;padding:8px 10px;font-size:.9rem}
+.ios{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ios ul{margin:6px 0 0;padding-left:1.2em}
+
+/* quiz */
+.qcard{display:grid;gap:10px}
+.qopts{display:grid;gap:6px}
+.qopts button{text-align:left;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:9px 12px}
+.qopts button.right{border-color:var(--ok);background:var(--ok-soft)}
+.qopts button.wrong{border-color:var(--del);background:var(--warn-soft)}
+.prog{height:6px;background:var(--line2);border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent)}
+
+/* checklist */
+.clist{display:grid;gap:6px}
+.clist label{display:flex;gap:10px;align-items:flex-start;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:9px 12px;cursor:pointer}
+.clist input{width:18px;height:18px;margin-top:3px;accent-color:var(--ok);flex:none}
+.clist label.on{border-color:var(--ok)}
+.reslist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.reslist a{display:block;text-decoration:none;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.reslist a b{color:var(--accent);font-family:var(--f-display)}
+.reslist a span{display:block;font-size:.85rem;color:var(--muted)}
+footer{padding-block:20px 40px;font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);margin-top:20px}
+
+@media (max-width:860px){
+  .hero,.detail,.split,.split.r,.trainer,.setitem,.ios{grid-template-columns:minmax(0,1fr)}
+  .hero .sheetbox{max-width:260px}
+  .doc{padding:20px 18px 20px 22px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .pad,.btn,.rbtn{transition:background-color .15s,border-color .15s}
+}
+.refs p.ref{font-size:var(--fs,16px);padding-left:var(--pl,0);text-indent:var(--ti,0);overflow-wrap:anywhere}
+table.sched th,table.sched td{padding:2px var(--pad,.19cm)}
+table.sched .cell{margin-left:var(--ind,0)}
+.toggles .tl{font-size:.75rem;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.btn{text-decoration:none}
+.hero .sheetbox{max-width:330px;width:100%;justify-self:center}
+.sheet{font-size:.7rem}
+
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><div class="mark" aria-hidden="true">¶</div><div><b>Proposal Word Lab</b><span data-t="brandSub"></span></div></div>
+    <div class="toggles">
+      <span class="tl" data-t="osLabel"></span>
+      <div class="seg" id="osSeg" role="group">
+        <button type="button" data-os="win" aria-pressed="true">Windows</button>
+        <button type="button" data-os="mac" aria-pressed="false">Mac</button>
+      </div>
+      <span class="tl" data-t="langLabel"></span>
+      <div class="seg" id="langSeg" role="group">
+        <button type="button" data-lang="th" aria-pressed="true">ไทย</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
+  </div>
+  <nav class="tabs" aria-label="Sections"><div class="wrap">
+    <a href="#start" data-v="start" data-t="navStart"></a>
+    <a href="#ribbon" data-v="ribbon" data-t="navRibbon"></a>
+    <a href="#labs" data-v="labs" data-t="navLabs"></a>
+    <a href="#keys" data-v="keys" data-t="navKeys"></a>
+    <a href="#setup" data-v="setup" data-t="navSetup"></a>
+    <a href="#quiz" data-v="quiz" data-t="navQuiz"></a>
+    <a href="#check" data-v="check" data-t="navCheck"></a>
+  </div></nav>
+</header>
+<main class="wrap">
+  <section class="view" id="v-start"></section>
+  <section class="view" id="v-ribbon" hidden></section>
+  <section class="view" id="v-labs" hidden></section>
+  <section class="view" id="v-keys" hidden></section>
+  <section class="view" id="v-setup" hidden></section>
+  <section class="view" id="v-quiz" hidden></section>
+  <section class="view" id="v-check" hidden></section>
+</main>
+<footer class="wrap"><p data-t="footer"></p></footer>
+
+<script>
+/* ===== Content data: every text is [th, en]; platform-specific values use {win, mac} ===== */
+
+const UI = {
+  brandSub: ['ห้องทดลอง MS Word สำหรับเขียน Proposal', 'MS Word lab for writing your proposal'],
+  navStart: ['เริ่มต้น', 'Start'],
+  navRibbon: ['เมนู Ribbon', 'Ribbon'],
+  navLabs: ['ห้องทดลอง', 'Labs'],
+  navKeys: ['แป้นลัด', 'Shortcuts'],
+  navSetup: ['ตั้งค่า', 'Setup'],
+  navQuiz: ['แบบทดสอบ', 'Quiz'],
+  navCheck: ['เช็กลิสต์', 'Checklist'],
+  osLabel: ['ระบบ', 'System'],
+  langLabel: ['ภาษา', 'Language'],
+  heroKicker: ['สำหรับนิสิตชั้นปีที่ 4 · ปีการศึกษา 2569', 'For 4th-year students · Academic year 2026'],
+  heroTitle: ['จัดรูปแบบ Proposal ให้เป๊ะ ด้วยคำสั่งที่ Word มีอยู่แล้ว', 'Format your proposal properly with tools Word already has'],
+  heroLead: ['ลองกด ลองพิมพ์ ลองผิดได้ในหน้านี้ ก่อนไปใช้กับไฟล์จริง ทุกหัวข้อแยกขั้นตอนและแป้นลัดของ Windows กับ Mac ให้ เลือกระบบที่มุมขวาบน', 'Click, type and make mistakes here before touching your real file. Every topic shows the Windows and Mac steps and shortcuts separately. Pick your system at the top right.'],
+  heroSource: ['ดัดแปลงจากเอกสาร “การใช้โปรแกรม Microsoft Word เบื้องต้น” (รศ.ดร.พงษ์ชัย ดำรงโรจน์วัฒนา) และคู่มือแป้นลัดของ Microsoft Support', 'Adapted from “Basic Microsoft Word for Proposal Writing” (Assoc. Prof. Dr. Pongchai Dumrongrojwatthana) and Microsoft Support’s keyboard shortcut reference'],
+  flowTitle: ['ลำดับการทำงานกับไฟล์ Proposal', 'Working order for a proposal file'],
+  flowNote: ['ทำตามลำดับนี้แล้วแก้งานภายหลังง่ายมาก เพราะเลขหัวข้อ เลขภาพ และสารบัญจะอัปเดตเอง', 'Follow this order and later edits become easy: heading numbers, figure numbers and the table of contents update themselves.'],
+  goLab: ['ไปห้องทดลอง', 'Open lab'],
+  goRibbon: ['ดูในเมนู', 'See in ribbon'],
+  ribbonTitle: ['สำรวจเมนู Ribbon', 'Explore the ribbon'],
+  ribbonLead: ['คลิกแท็บและปุ่มเหมือนใน Word จริง เพื่อดูว่าคำสั่งนั้นใช้ทำอะไร อยู่ตรงไหน และใช้กับ proposal อย่างไร', 'Click tabs and buttons as you would in Word to see what each command does, where it lives and how it helps your proposal.'],
+  searchPh: ['ค้นหาคำสั่ง เช่น สารบัญ, caption, hanging', 'Search commands, e.g. contents, caption, hanging'],
+  noResult: ['ไม่พบคำสั่งที่ค้นหา ลองคำอื่น', 'No command matches. Try another word.'],
+  where: ['อยู่ที่ไหน / ทำอย่างไร', 'Where / how'],
+  shortcut: ['แป้นลัด', 'Shortcut'],
+  noShortcut: ['ไม่มีแป้นลัดมาตรฐาน ใช้เมนูแทน', 'No standard shortcut; use the menu'],
+  tipProposal: ['ใช้กับ Proposal', 'For your proposal'],
+  pickItem: ['เลือกปุ่มใน Ribbon ด้านบนเพื่อดูรายละเอียด', 'Pick a button in the ribbon above to see details'],
+  labsTitle: ['ห้องทดลอง', 'Labs'],
+  labsLead: ['จำลองการทำงานของ Word ให้ลองทำเอง แต่ละห้องมีโจทย์และตัวตรวจ เมื่อทำถูกจะขึ้นเครื่องหมายผ่าน', 'Simulations of Word features to try yourself. Each lab has a task and a checker that turns green when you get it right.'],
+  keysTitle: ['ฝึกแป้นลัด', 'Shortcut trainer'],
+  keysLead: ['คลิกในกรอบแล้วกดแป้นตามโจทย์ ระบบจะรับแป้นตามระบบที่เลือก (Windows ใช้ Ctrl / Mac ใช้ ⌘ Cmd)', 'Click inside the box and press the keys asked for. The trainer expects the system you picked (Ctrl on Windows, ⌘ Cmd on Mac).'],
+  sheetTitle: ['ตารางแป้นลัดทั้งหมด', 'Full shortcut table'],
+  sheetFilter: ['กรองรายการ', 'Filter'],
+  setupTitle: ['ตั้งค่า Word ครั้งเดียว ใช้ได้ทั้งเทอม', 'Set up Word once for the whole term'],
+  setupLead: ['ค่าตั้งเหล่านี้มาจากหัวข้อ File/Options ในเอกสารประกอบการสอน เพิ่มเส้นทางเมนูของ Mac ให้ด้วย', 'These settings come from the File/Options section of the course handout, with Mac menu paths added.'],
+  quizTitle: ['แบบทดสอบ', 'Quiz'],
+  quizLead: ['10 ข้อ เลือกคำตอบแล้วดูคำอธิบายทันที', '10 questions with instant explanations.'],
+  checkTitle: ['เช็กลิสต์ก่อนส่ง Proposal ให้อาจารย์', 'Checklist before sending your proposal'],
+  checkLead: ['ติ๊กไว้ได้ ระบบจำไว้ในเบราว์เซอร์นี้', 'Tick items as you go; this browser remembers them.'],
+  resTitle: ['แหล่งสืบค้นงานวิจัย (จากเอกสารประกอบการสอน)', 'Research databases (from the course handout)'],
+  done: ['ผ่าน', 'Done'],
+  todo: ['ยังไม่ผ่าน', 'Not yet'],
+  reset: ['เริ่มใหม่', 'Reset'],
+  task: ['โจทย์', 'Task'],
+  iosTitle: ['ใช้ Word บน iPad / iPhone (iOS) ได้แค่ไหน', 'How far can Word on iPad / iPhone (iOS) go?'],
+  footer: ['ทำขึ้นเพื่อการเรียนการสอน · แป้นลัดอ้างอิงจาก support.microsoft.com (Keyboard shortcuts in Word) · ชื่อเมนูอาจต่างเล็กน้อยตามเวอร์ชัน', 'Made for teaching · Shortcuts from support.microsoft.com (Keyboard shortcuts in Word) · Menu names may vary slightly by version']
+};
+
+/* Workflow: real order of work, so it is numbered */
+const FLOW = [
+  { t: ['ตั้งค่า Word', 'Set up Word'], d: ['หน่วย cm, ไม่บีบอัดรูป, AutoSave, ฝังฟอนต์', 'cm units, no image compression, AutoSave, embed fonts'], go: 'setup' },
+  { t: ['ตั้งหน้ากระดาษ', 'Page setup'], d: ['A4 และระยะขอบตามคู่มือคณะ', 'A4 and the margins your faculty requires'], go: 'ribbon:layout' },
+  { t: ['สร้าง Styles + เลขหัวข้อ', 'Styles + heading numbers'], d: ['Heading 1–3 ผูกกับ Multilevel list', 'Heading 1–3 linked to a multilevel list'], go: 'lab:styles' },
+  { t: ['พิมพ์เนื้อหา', 'Write'], d: ['แบ่งหน้าด้วย Page break ไม่ใช่ Enter', 'Break pages with Page Break, not Enter'], go: 'lab:marks' },
+  { t: ['ใส่ Caption + อ้างอิงข้าม', 'Captions + cross-references'], d: ['เลขภาพ/ตารางรันเอง', 'Figure/table numbers run themselves'], go: 'lab:captions' },
+  { t: ['เอกสารอ้างอิง', 'References'], d: ['Hanging indent / EndNote', 'Hanging indent / EndNote'], go: 'lab:indent' },
+  { t: ['เลขหน้า + Section', 'Page numbers + sections'], d: ['ส่วนหน้า i, ii เนื้อหา 1, 2', 'Front matter i, ii; body 1, 2'], go: 'lab:sections' },
+  { t: ['สารบัญ', 'Table of contents'], d: ['สร้างจาก Heading แล้วกด F9', 'Built from headings, refresh with F9'], go: 'ribbon:references' },
+  { t: ['ส่งอาจารย์ + แก้ตามคอมเมนต์', 'Review with advisor'], d: ['Track Changes, Comment, Accept/Reject', 'Track Changes, comments, accept/reject'], go: 'lab:track' },
+  { t: ['ตรวจรอบสุดท้าย + PDF', 'Final check + PDF'], d: ['ใช้เช็กลิสต์ แล้ว Export เป็น PDF', 'Run the checklist, then export to PDF'], go: 'check' }
+];
+
+/* Ribbon: tabs → groups → items */
+const RIBBON = [
+ { id: 'file', n: ['File', 'File'], items: [
+  { id: 'options', g: ['ตั้งค่า', 'Settings'], ic: '⚙', n: ['Options / Preferences', 'Options / Preferences'],
+    d: ['ศูนย์รวมค่าตั้งของ Word เช่น หน่วยวัด การบันทึกอัตโนมัติ คุณภาพรูป และภาษา', 'Where Word keeps its settings: units, autosave, image quality and language.'],
+    p: { win: ['File › Options', 'File › Options'], mac: ['เมนู Word (มุมซ้ายบนของจอ) › Preferences หรือ Settings', 'Word menu (top-left of the screen) › Preferences or Settings'] },
+    k: { win: '', mac: 'Cmd+,' },
+    tip: ['ตั้งค่าครั้งเดียวก่อนเริ่มเขียน ดูรายการแนะนำในหน้า “ตั้งค่า”', 'Set these once before you start. See the recommended list on the Setup page.'], go: 'setup' },
+  { id: 'saveas', g: ['ไฟล์', 'File'], ic: '⤓', n: ['Save As + ตั้งชื่อไฟล์', 'Save As + file naming'],
+    d: ['บันทึกเป็นไฟล์ใหม่ทุกครั้งที่ส่งอาจารย์ เพื่อเก็บประวัติแต่ละรอบ', 'Save a new copy each time you send it to your advisor so every round is kept.'],
+    p: { win: ['File › Save As › เลือกโฟลเดอร์ OneDrive/Google Drive ของจุฬาฯ', 'File › Save As › choose your Chula OneDrive/Google Drive folder'], mac: ['File › Save As… › เลือกโฟลเดอร์', 'File › Save As… › choose the folder'] },
+    k: { win: 'F12', mac: 'Cmd+Shift+S' },
+    tip: ['รูปแบบชื่อที่แนะนำ: YYYYMMDD_รหัสนิสิต_Proposal_v03.docx เช่น 20261020_6xxxxxxx20_Proposal_v03.docx เรียงตามวันที่ได้เอง และไม่ควรมีคำว่า “ไฟล์เสีย ไฟล์หาย” ตั้งแต่เริ่มคุยงาน', 'Suggested name: YYYYMMDD_StudentID_Proposal_v03.docx, e.g. 20261020_6xxxxxxx20_Proposal_v03.docx. Files sort by date, and “my file got corrupted” stops being an excuse.'] },
+  { id: 'pdf', g: ['ไฟล์', 'File'], ic: 'PDF', n: ['Export เป็น PDF', 'Export to PDF'],
+    d: ['ส่ง PDF ให้กรรมการ เพื่อให้ฟอนต์และเลขหน้าเหมือนที่เราเห็น', 'Send PDFs to committees so fonts and page numbers look exactly like yours.'],
+    p: { win: ['File › Export › Create PDF/XPS › Options › ติ๊ก “Create bookmarks using: Headings”', 'File › Export › Create PDF/XPS › Options › tick “Create bookmarks using: Headings”'], mac: ['File › Save As… › File Format: PDF › เลือก “Best for electronic distribution and accessibility”', 'File › Save As… › File Format: PDF › choose “Best for electronic distribution and accessibility”'] },
+    k: { win: '', mac: '' },
+    tip: ['Bookmark จาก Heading ทำให้ PDF มีสารบัญด้านข้างให้คลิกได้ ใช้ได้ก็ต่อเมื่อหัวข้อใช้ Heading style', 'Heading bookmarks give the PDF a clickable outline, which only works if your headings use Heading styles.'] },
+  { id: 'embed', g: ['ไฟล์', 'File'], ic: 'Aa', n: ['ฝังฟอนต์ในไฟล์', 'Embed fonts'],
+    d: ['ถ้าเครื่องอาจารย์ไม่มีฟอนต์ TH Sarabun New ตัวอักษรจะถูกแทนและบรรทัดเลื่อน', 'If your advisor’s computer lacks TH Sarabun New, Word swaps the font and lines shift.'],
+    p: { win: ['File › Options › Save › ติ๊ก “Embed fonts in the file”', 'File › Options › Save › tick “Embed fonts in the file”'], mac: ['Word › Preferences › Save › ติ๊ก “Embed fonts in the file”', 'Word › Preferences › Save › tick “Embed fonts in the file”'] },
+    k: { win: '', mac: '' },
+    tip: ['ไฟล์จะใหญ่ขึ้นเล็กน้อย แต่หน้าตาคงที่ทุกเครื่อง', 'The file grows a little, but it looks the same everywhere.'] },
+  { id: 'version', g: ['ไฟล์', 'File'], ic: '↺', n: ['Version History', 'Version History'],
+    d: ['ไฟล์ที่เก็บบน OneDrive ย้อนดูหรือกู้คืนฉบับเก่าได้', 'Files stored on OneDrive keep older versions you can view or restore.'],
+    p: { win: ['File › Info › Version History', 'File › Info › Version History'], mac: ['File › Browse Version History', 'File › Browse Version History'] },
+    k: { win: '', mac: '' },
+    tip: ['เปิด AutoSave (มุมซ้ายบน) เมื่อไฟล์อยู่บน OneDrive แล้วไม่ต้องกลัวไฟฟ้าดับ', 'Turn on AutoSave (top-left) for files on OneDrive and power cuts stop being a risk.'] }
+ ]},
+ { id: 'home', n: ['Home', 'Home'], items: [
+  { id: 'painter', g: ['Clipboard', 'Clipboard'], ic: '🖌︎', n: ['Format Painter (คัดลอกรูปแบบ)', 'Format Painter'],
+    d: ['คัดลอก “รูปแบบ” ของข้อความไปใช้กับข้อความอื่น ไม่ได้คัดลอกตัวอักษร', 'Copies the formatting of text, not the text itself, onto other text.'],
+    p: { win: ['Home › Clipboard › ไอคอนแปรง: คลิก 1 ครั้งใช้ 1 ที่ / ดับเบิลคลิกเพื่อทาหลายที่ (กด Esc เพื่อหยุด)', 'Home › Clipboard › brush icon: click once for one use, double-click to paint many places (Esc to stop)'], mac: ['Home › ไอคอนแปรง: คลิก 1 ครั้ง / ดับเบิลคลิกเพื่อทาหลายที่', 'Home › brush icon: click once, or double-click to paint many places'] },
+    k: { win: 'Ctrl+Alt+C / Ctrl+Shift+C', mac: 'Cmd+Opt+C' }, k2: { win: 'Ctrl+Alt+V', mac: 'Cmd+Opt+V' }, k2n: ['วางรูปแบบ', 'Paste formatting'],
+    tip: ['เอกสารประกอบการสอนใช้ Ctrl+Shift+C / V ซึ่งใช้ได้ใน Word รุ่นก่อน ใน Microsoft 365 ปัจจุบัน Ctrl+Shift+V กลายเป็น “วางเฉพาะข้อความ” ให้ใช้ Ctrl+Alt+V วางรูปแบบแทน', 'The handout uses Ctrl+Shift+C / V, which works in older Word. In current Microsoft 365, Ctrl+Shift+V pastes text only, so use Ctrl+Alt+V to paste formatting.'] },
+  { id: 'pastetext', g: ['Clipboard', 'Clipboard'], ic: '📋︎', n: ['วางเฉพาะข้อความ', 'Paste text only'],
+    d: ['วางข้อความจาก PDF หรือเว็บโดยตัดฟอนต์ สี และ style แปลกปลอมทิ้ง', 'Pastes text from a PDF or website without its fonts, colours and stray styles.'],
+    p: { win: ['Home › Paste ▾ › Keep Text Only (A)', 'Home › Paste ▾ › Keep Text Only (A)'], mac: ['Home › Paste ▾ › Keep Text Only', 'Home › Paste ▾ › Keep Text Only'] },
+    k: { win: 'Ctrl+Shift+V', mac: 'Cmd+Shift+V' },
+    tip: ['ข้อความจาก PDF มักมี Enter ท้ายทุกบรรทัด ลบด้วย Replace ^p ได้ (ดูห้องทดลอง ¶)', 'Text from PDFs often has an Enter at the end of every line. Remove it with Replace ^p (see the ¶ lab).'], go: 'lab:marks' },
+  { id: 'multilevel', g: ['Paragraph', 'Paragraph'], ic: '1.1', n: ['Multilevel List (เลขหัวข้อ 1, 1.1)', 'Multilevel List (1, 1.1 numbering)'],
+    d: ['ผูกเลขหัวข้อเข้ากับ Heading 1–3 ทำให้เลข 1, 1.1, 1.1.1 รันเองเมื่อย้ายหรือเพิ่มหัวข้อ', 'Links numbering to Heading 1–3 so 1, 1.1, 1.1.1 renumber themselves when you add or move sections.'],
+    p: { win: ['Home › Paragraph › Multilevel List ▾ › Define New Multilevel List › More >> › เลือก Level 1 แล้ว “Link level to style: Heading 1” ทำซ้ำ Level 2, 3', 'Home › Paragraph › Multilevel List ▾ › Define New Multilevel List › More >> › Level 1 → “Link level to style: Heading 1”; repeat for levels 2 and 3'], mac: ['Home › Multilevel List ▾ › Define New Multilevel List › ปุ่มลูกศรขยาย › Link level to style: Heading 1, 2, 3', 'Home › Multilevel List ▾ › Define New Multilevel List › expand arrow › Link level to style: Heading 1, 2, 3'] },
+    k: { win: '', mac: '' },
+    tip: ['ไฟล์ตัวอย่างในวิชานี้มี style “1.1. Style1” ที่ทำแบบนี้ไว้แล้ว ใช้ต่อได้เลย', 'The course template already has a “1.1. Style1” style built this way. Reuse it.'], go: 'lab:styles' },
+  { id: 'pilcrow', g: ['Paragraph', 'Paragraph'], ic: '¶', n: ['Show/Hide ¶ (แสดงเครื่องหมาย)', 'Show/Hide ¶'],
+    d: ['แสดงอักขระที่มองไม่เห็น: ช่องว่าง (·) Tab (→) Enter (¶) Page break ทำให้เห็นสาเหตุที่หน้ากระดาษเพี้ยน', 'Shows hidden characters: spaces (·), tabs (→), Enters (¶) and page breaks, so you can see why a layout misbehaves.'],
+    p: { win: ['Home › Paragraph › ปุ่ม ¶', 'Home › Paragraph › ¶ button'], mac: ['Home › ปุ่ม ¶', 'Home › ¶ button'] },
+    k: { win: 'Ctrl+Shift+8', mac: '' },
+    tip: ['เปิดไว้ตลอดตอนจัดรูปแบบ แล้วปิดตอนอ่านทวน', 'Keep it on while formatting and off while proofreading.'], go: 'lab:marks' },
+  { id: 'spacing', g: ['Paragraph', 'Paragraph'], ic: '↕', n: ['Line & Paragraph Spacing', 'Line & Paragraph Spacing'],
+    d: ['ระยะบรรทัดและระยะก่อน/หลังย่อหน้า ควรตั้งใน Style ไม่ใช่กด Enter เว้นบรรทัด', 'Line spacing and space before/after paragraphs. Set them in the style instead of adding empty Enters.'],
+    p: { win: ['Home › Paragraph › ปุ่มลูกศรมุมกลุ่ม › Indents and Spacing › Spacing Before/After และ Line spacing', 'Home › Paragraph › dialog launcher › Indents and Spacing › Spacing Before/After and Line spacing'], mac: ['Format › Paragraph… › Indents and Spacing', 'Format › Paragraph… › Indents and Spacing'] },
+    k: { win: 'Ctrl+1 / Ctrl+5 / Ctrl+2', mac: 'Cmd+1 / Cmd+5 / Cmd+2' }, kn: ['ระยะ 1 / 1.5 / 2 เท่า', 'Single / 1.5 / double'],
+    tip: ['ติ๊ก “Don’t add space between paragraphs of the same style” เพื่อไม่ให้ย่อหน้าห่างกันเอง', 'Tick “Don’t add space between paragraphs of the same style” to stop unwanted gaps.'] },
+  { id: 'thaidist', g: ['Paragraph', 'Paragraph'], ic: '⇹', n: ['Justify / Thai Distributed', 'Justify / Thai Distributed'],
+    d: ['Justify ยืดเฉพาะช่องว่าง ภาษาไทยมีช่องว่างน้อยจึงเกิดช่องโหว่ Thai Distributed กระจายระยะระหว่างตัวอักษรให้เรียบกว่า', 'Justify stretches only the spaces. Thai has few spaces, so gaps appear. Thai Distributed spreads spacing between characters instead.'],
+    p: { win: ['Home › Paragraph › ปุ่ม Thai Distributed (ข้างปุ่ม Justify จะมีเมื่อเพิ่มภาษาไทยใน Office)', 'Home › Paragraph › Thai Distributed button (next to Justify, shown when Thai is an Office editing language)'], mac: ['Format › Paragraph… › Alignment (ตัวเลือก Thai Distributed ขึ้นกับการตั้งค่าภาษา ถ้าไม่มีให้ใช้ Justify)', 'Format › Paragraph… › Alignment (Thai Distributed depends on language settings; use Justify if absent)'] },
+    k: { win: 'Ctrl+J', mac: 'Cmd+J' }, kn: ['Justify', 'Justify'],
+    tip: ['ใช้กับเนื้อความภาษาไทยเท่านั้น ไม่ใช้กับหัวข้อหรือบรรทัดสุดท้ายที่สั้น', 'Use it for Thai body text only, not headings or short last lines.'] },
+  { id: 'styles', g: ['Styles', 'Styles'], ic: 'H1', n: ['Styles (Heading 1–3, Normal)', 'Styles (Heading 1–3, Normal)'],
+    d: ['กำหนดรูปแบบหัวข้อครั้งเดียว ใช้ทั้งเล่ม แก้ที่ Style ที่เดียวเปลี่ยนทุกหัวข้อ และเป็นฐานของสารบัญอัตโนมัติ', 'Define heading formats once for the whole document. Change the style and every heading follows. Automatic contents depend on it.'],
+    p: { win: ['Home › Styles › คลิกขวาที่ Heading 1 › Modify › ตั้งฟอนต์ TH Sarabun New 16pt › Format › Paragraph', 'Home › Styles › right-click Heading 1 › Modify › set TH Sarabun New 16pt › Format › Paragraph'], mac: ['Home › Styles Pane › ชี้ Heading 1 › ▾ › Modify Style', 'Home › Styles Pane › hover Heading 1 › ▾ › Modify Style'] },
+    k: { win: 'Ctrl+Alt+1 / Ctrl+Alt+2 / Ctrl+Alt+3', mac: 'Cmd+Opt+1 / Cmd+Opt+2 / Cmd+Opt+3' }, k2: { win: 'Ctrl+Shift+N', mac: 'Cmd+Shift+N' }, k2n: ['กลับเป็น Normal', 'Back to Normal'],
+    tip: ['อย่าใช้วิธีทำตัวหนาแล้วขยายฟอนต์เป็น “หัวข้อปลอม” เพราะสารบัญและ Navigation Pane จะมองไม่เห็น', 'Don’t fake headings with bold and bigger text. The contents table and Navigation Pane can’t see them.'], go: 'lab:styles' },
+  { id: 'replace', g: ['Editing', 'Editing'], ic: 'ab→', n: ['Find & Replace', 'Find & Replace'],
+    d: ['แก้คำผิดที่พิมพ์ซ้ำ ๆ ทั้งเล่มในครั้งเดียว และค้นหาอักขระพิเศษ ^p (Enter) ^t (Tab) ^l (ขึ้นบรรทัด) ^m (ตัดหน้า)', 'Fix a repeated typo across the whole document at once, and find special characters: ^p (Enter), ^t (Tab), ^l (line break), ^m (page break).'],
+    p: { win: ['Home › Editing › Replace › More >> › Special', 'Home › Editing › Replace › More >> › Special'], mac: ['Edit › Find › Advanced Find and Replace… หรือแว่นขยายใน Home', 'Edit › Find › Advanced Find and Replace… or the Home magnifier'] },
+    k: { win: 'Ctrl+H', mac: 'Ctrl+H' },
+    tip: ['แทนที่ “  ” (เว้นวรรค 2 ครั้ง) ด้วย “ ” จนกว่าจะเหลือ 0 รายการ', 'Replace “  ” (double space) with “ ” until 0 remain.'], go: 'lab:marks' },
+  { id: 'clear', g: ['Font', 'Font'], ic: 'A⌫', n: ['Clear Formatting', 'Clear Formatting'],
+    d: ['ล้างรูปแบบที่ตั้งเองกลับเป็นค่าของ Style เหมาะกับข้อความที่คัดลอกมา', 'Removes manual formatting back to the style’s defaults. Handy for pasted text.'],
+    p: { win: ['Home › Font › ปุ่ม A ยางลบ', 'Home › Font › eraser A button'], mac: ['Home › ปุ่ม A ยางลบ', 'Home › eraser A button'] },
+    k: { win: 'Ctrl+Space', mac: '' }, k2: { win: 'Ctrl+Q', mac: '' }, k2n: ['ล้างรูปแบบย่อหน้า', 'Clear paragraph formatting'],
+    tip: ['ใช้ก่อนใส่ Style ให้ข้อความที่วางมาจากที่อื่น', 'Use it before applying a style to text pasted from elsewhere.'] },
+  { id: 'case', g: ['Font', 'Font'], ic: 'Aa', n: ['Change Case / ตัวยก ตัวห้อย', 'Change Case / super- & subscript'],
+    d: ['สลับตัวพิมพ์เล็ก-ใหญ่ของคำอังกฤษ และใส่ตัวยก (m², km²) ตัวห้อย (CO₂, H₂O)', 'Cycle English case, and add superscripts (m², km²) and subscripts (CO₂, H₂O).'],
+    p: { win: ['Home › Font › Aa ▾ และปุ่ม x² / x₂', 'Home › Font › Aa ▾ and the x² / x₂ buttons'], mac: ['Home › Aa ▾ และปุ่ม x² / x₂', 'Home › Aa ▾ and the x² / x₂ buttons'] },
+    k: { win: 'Shift+F3', mac: 'Shift+F3' }, kn: ['สลับตัวพิมพ์', 'Cycle case'],
+    tip: ['ชื่อวิทยาศาสตร์ใช้ตัวเอียง (Ctrl+I / Cmd+I) เช่น Tectona grandis', 'Scientific names go in italics (Ctrl+I / Cmd+I), e.g. Tectona grandis.'] }
+ ]},
+ { id: 'insert', n: ['Insert', 'Insert'], items: [
+  { id: 'pagebreak', g: ['Pages', 'Pages'], ic: '⤓¶', n: ['Page Break (ขึ้นหน้าใหม่)', 'Page Break'],
+    d: ['บังคับให้ข้อความถัดไปขึ้นหน้าใหม่ แทนการกด Enter หลายครั้ง ซึ่งจะเลื่อนเพี้ยนเมื่อแก้ข้อความด้านบน', 'Forces the next text onto a new page. Pressing Enter many times instead breaks as soon as you edit text above.'],
+    p: { win: ['Insert › Pages › Page Break (หรือ Layout › Breaks › Page)', 'Insert › Pages › Page Break (or Layout › Breaks › Page)'], mac: ['Insert › Break › Page Break', 'Insert › Break › Page Break'] },
+    k: { win: 'Ctrl+Enter', mac: 'Cmd+Return' },
+    tip: ['ทางที่ดีกว่า: ตั้ง Heading 1 ให้ “Page break before” ทุกบทจะขึ้นหน้าใหม่เอง (Paragraph › Line and Page Breaks)', 'Better: give Heading 1 “Page break before” so every chapter starts a new page by itself (Paragraph › Line and Page Breaks).'], go: 'lab:marks' },
+  { id: 'pagenum', g: ['Header & Footer', 'Header & Footer'], ic: '#', n: ['Page Number', 'Page Number'],
+    d: ['ใส่เลขหน้าเป็น field ที่นับเอง เลือกรูปแบบ i, ii หรือ 1, 2 และเริ่มนับใหม่ได้ในแต่ละ Section', 'Inserts a self-counting page field. Choose i, ii or 1, 2 and restart numbering per section.'],
+    p: { win: ['Insert › Header & Footer › Page Number › Bottom of Page › แล้ว Page Number › Format Page Numbers…', 'Insert › Header & Footer › Page Number › Bottom of Page, then Page Number › Format Page Numbers…'], mac: ['Insert › Page Number › Page Numbers… › Format…', 'Insert › Page Number › Page Numbers… › Format…'] },
+    k: { win: '', mac: '' },
+    tip: ['ส่วนหน้า (บทคัดย่อ สารบัญ) ใช้ i, ii ส่วนเนื้อหาเริ่ม 1 ต้องแบ่ง Section ก่อน', 'Front matter uses i, ii and the body starts at 1. You need sections for that.'], go: 'lab:sections' },
+  { id: 'header', g: ['Header & Footer', 'Header & Footer'], ic: '▔', n: ['Header / Footer + Link to Previous', 'Header / Footer + Link to Previous'],
+    d: ['ดับเบิลคลิกขอบบน/ล่างของหน้าเพื่อแก้ หัว/ท้ายกระดาษ ถ้าอยากให้ Section นี้ต่างจากก่อนหน้า ให้ปิด Link to Previous', 'Double-click the top or bottom margin to edit. To make this section differ from the previous one, turn off Link to Previous.'],
+    p: { win: ['ดับเบิลคลิกส่วนท้ายกระดาษ › แท็บ Header & Footer › Link to Previous', 'Double-click the footer › Header & Footer tab › Link to Previous'], mac: ['ดับเบิลคลิกส่วนท้ายกระดาษ › แท็บ Header & Footer › Link to Previous', 'Double-click the footer › Header & Footer tab › Link to Previous'] },
+    k: { win: '', mac: '' },
+    tip: ['ติ๊ก Different First Page ถ้าหน้าแรกของบทไม่ต้องการเลขหน้า (ตามคู่มือบางคณะ)', 'Tick Different First Page if chapter openers must not show a number (some faculty guides require this).'], go: 'lab:sections' },
+  { id: 'table', g: ['Tables', 'Tables'], ic: '▦', n: ['Table', 'Table'],
+    d: ['สร้างตาราง แล้วจัดผ่านแท็บ Table Design และ Layout ที่จะโผล่มาเมื่อคลิกในตาราง', 'Create a table, then format it with the Table Design and Layout tabs that appear when you click inside it.'],
+    p: { win: ['Insert › Table › ลากเลือกจำนวนแถว/คอลัมน์', 'Insert › Table › drag to pick rows and columns'], mac: ['Insert › Table › ลากเลือกจำนวนแถว/คอลัมน์', 'Insert › Table › drag to pick rows and columns'] },
+    k: { win: '', mac: '' },
+    tip: ['ตารางยาวข้ามหน้า: Table Layout › Repeat Header Rows / ชื่อตารางไว้ “เหนือ” ตาราง', 'Long tables: Table Layout › Repeat Header Rows. Table captions go above the table.'], go: 'lab:table' },
+  { id: 'picture', g: ['Illustrations', 'Illustrations'], ic: '▲', n: ['Pictures + จัดเรียงหลายรูป', 'Pictures + aligning several'],
+    d: ['แทรกรูปแบบ In Line with Text จะเคลื่อนตามข้อความไม่ลอยหลุด ถ้าต้องวางหลายรูปเรียงกัน ใช้ Align หรือใส่ในตารางไร้เส้น', 'Insert pictures In Line with Text so they move with the text. For several side by side, use Align or a borderless table.'],
+    p: { win: ['Insert › Pictures › คลิกรูปที่ 1 แล้วกด Ctrl/Shift คลิกรูปอื่น › Picture Format › Align', 'Insert › Pictures › click picture 1, Ctrl/Shift-click others › Picture Format › Align'], mac: ['Insert › Pictures › คลิกรูปแล้ว Cmd/Shift คลิกรูปอื่น › Picture Format › Align', 'Insert › Pictures › click one, Cmd/Shift-click others › Picture Format › Align'] },
+    k: { win: '', mac: '' },
+    tip: ['คำบรรยายภาพนิยมไว้ “ใต้” ภาพ ใช้ Insert Caption ไม่ต้องพิมพ์เลขเอง', 'Figure captions usually go below the figure. Use Insert Caption instead of typing numbers.'], go: 'lab:captions' },
+  { id: 'symbol', g: ['Symbols', 'Symbols'], ic: 'Ω', n: ['Symbol / Equation', 'Symbol / Equation'],
+    d: ['ใส่สัญลักษณ์ เช่น ° ± µ และสมการด้วย Equation editor', 'Insert symbols such as ° ± µ, and equations with the Equation editor.'],
+    p: { win: ['Insert › Symbols › Symbol / Equation', 'Insert › Symbols › Symbol / Equation'], mac: ['Insert › Advanced Symbol / Equation', 'Insert › Advanced Symbol / Equation'] },
+    k: { win: 'Alt+X', mac: 'Shift+Opt+8' }, kn: ['ทริก: Windows พิมพ์ 00B0 แล้วกด Alt+X ได้ ° / Mac กด Shift+Option+8 ได้ °', 'Trick: on Windows type 00B0 then Alt+X for °; on Mac press Shift+Option+8 for °'],
+    tip: ['สำหรับเขียนหน่วย 25 °C, 1,200 m² ให้ใช้ Non-breaking space (Win Ctrl+Shift+Space / Mac Option+Space) เพื่อไม่ให้ตัวเลขกับหน่วยแยกบรรทัด', 'For units like 25 °C or 1,200 m², use a non-breaking space (Win Ctrl+Shift+Space / Mac Option+Space) so number and unit never split across lines.'] }
+ ]},
+ { id: 'design', n: ['Design', 'Design'], items: [
+  { id: 'pagecolor', g: ['Page Background', 'Page Background'], ic: '◐', n: ['Page Color', 'Page Color'],
+    d: ['เปลี่ยนสีพื้นหลังเฉพาะบนจอ (ไม่พิมพ์ออก) ช่วยลดการแสบตาเวลาพิมพ์งานนาน ๆ', 'Changes the on-screen page colour (it does not print). Easier on the eyes during long sessions.'],
+    p: { win: ['Design › Page Background › Page Color', 'Design › Page Background › Page Color'], mac: ['Design › Page Color', 'Design › Page Color'] },
+    k: { win: '', mac: '' },
+    tip: ['ใช้สีครีมอ่อน หรือใช้ View › Immersive Reader / โหมดมืดของระบบแทน', 'Pick a soft cream, or use View › Immersive Reader or your system’s dark mode.'] },
+  { id: 'watermark', g: ['Page Background', 'Page Background'], ic: 'W', n: ['Watermark “DRAFT”', 'Watermark “DRAFT”'],
+    d: ['ใส่ลายน้ำ “ฉบับร่าง” ทุกหน้า ให้ผู้อ่านรู้ว่ายังไม่ใช่ฉบับจริง', 'Puts a “DRAFT” watermark on every page so readers know it is not final.'],
+    p: { win: ['Design › Page Background › Watermark › Custom Watermark', 'Design › Page Background › Watermark › Custom Watermark'], mac: ['Design › Watermark', 'Design › Watermark'] },
+    k: { win: '', mac: '' },
+    tip: ['เอาออกก่อนส่งฉบับสอบ', 'Remove it before the exam copy.'] }
+ ]},
+ { id: 'layout', n: ['Layout', 'Layout'], items: [
+  { id: 'size', g: ['Page Setup', 'Page Setup'], ic: 'A4', n: ['Size: A4', 'Size: A4'],
+    d: ['Word บางเครื่องตั้งต้นเป็น Letter (ยาวกว่า A4 ไม่เท่ากัน) ทำให้เลขหน้าตอนพิมพ์ไม่ตรง', 'Some installs default to Letter, which differs from A4 and shifts pages when printed.'],
+    p: { win: ['Layout › Page Setup › Size › A4', 'Layout › Page Setup › Size › A4'], mac: ['Layout › Size › A4 (หรือ File › Page Setup…)', 'Layout › Size › A4 (or File › Page Setup…)'] },
+    k: { win: '', mac: '' },
+    tip: ['ตั้งที่ไฟล์แม่แบบตั้งแต่แรก', 'Set it in the template from the start.'] },
+  { id: 'margins', g: ['Page Setup', 'Page Setup'], ic: '▭', n: ['Margins (ระยะขอบ)', 'Margins'],
+    d: ['ระยะขอบที่พบบ่อยในวิทยานิพนธ์ไทย: บนและซ้าย 1.5 นิ้ว (3.81 cm) ขวาและล่าง 1 นิ้ว (2.54 cm) ขอบซ้ายกว้างกว่าเพื่อเย็บเล่ม', 'A common Thai thesis setup: top and left 1.5 in (3.81 cm), right and bottom 1 in (2.54 cm). The left is wider for binding.'],
+    p: { win: ['Layout › Margins › Custom Margins…', 'Layout › Margins › Custom Margins…'], mac: ['Layout › Margins › Custom Margins…', 'Layout › Margins › Custom Margins…'] },
+    k: { win: '', mac: '' },
+    tip: ['ตรวจสอบตัวเลขจริงกับคู่มือของคณะ/บัณฑิตวิทยาลัยก่อนเสมอ', 'Always confirm the exact numbers with your faculty or graduate school guide.'] },
+  { id: 'columns', g: ['Page Setup', 'Page Setup'], ic: '▥', n: ['Columns', 'Columns'],
+    d: ['แบ่งข้อความเป็นหลายคอลัมน์ เช่น รายการแป้นลัด หรืออภิธานศัพท์', 'Splits text into columns, e.g. a shortcut list or glossary.'],
+    p: { win: ['เลือกข้อความ › Layout › Columns › Two', 'Select text › Layout › Columns › Two'], mac: ['เลือกข้อความ › Layout › Columns › Two', 'Select text › Layout › Columns › Two'] },
+    k: { win: 'Ctrl+Shift+Enter', mac: 'Cmd+Shift+Return' }, kn: ['ตัดคอลัมน์', 'Column break'],
+    tip: ['ลองแบ่งหัวข้อ “แป้นลัดที่ใช้บ่อย” ในไฟล์ตัวอย่างเป็น 2 คอลัมน์', 'Try splitting the handout’s “common shortcuts” list into two columns.'] },
+  { id: 'breaks', g: ['Page Setup', 'Page Setup'], ic: '§', n: ['Breaks › Section Break', 'Breaks › Section Break'],
+    d: ['แบ่งเอกสารเป็นช่วง (Section) ที่ตั้งเลขหน้า แนวกระดาษ หัว/ท้ายกระดาษต่างกันได้', 'Splits the document into sections that can have their own page numbers, orientation and headers/footers.'],
+    p: { win: ['Layout › Breaks › Section Breaks › Next Page', 'Layout › Breaks › Section Breaks › Next Page'], mac: ['Layout › Breaks › Section Break (Next Page)', 'Layout › Breaks › Section Break (Next Page)'] },
+    k: { win: '', mac: '' },
+    tip: ['ตารางกว้างอยากได้หน้าแนวนอนหน้าเดียว: ใส่ Section Break (Next Page) ก่อนและหลัง แล้วตั้ง Orientation › Landscape เฉพาะ Section นั้น', 'Need one landscape page for a wide table? Add a Next Page section break before and after it, then set Orientation › Landscape for that section only.'], go: 'lab:sections' },
+  { id: 'indent', g: ['Paragraph', 'Paragraph'], ic: '⇥', n: ['Indent: First line / Hanging', 'Indent: First line / Hanging'],
+    d: ['ย่อหน้าบรรทัดแรก (First line) สำหรับเนื้อความ และย่อหน้าแขวน (Hanging) สำหรับรายการเอกสารอ้างอิง', 'First-line indent for body text, hanging indent for reference lists.'],
+    p: { win: ['Home/Layout › Paragraph › Indentation › Special: First line หรือ Hanging › By', 'Home/Layout › Paragraph › Indentation › Special: First line or Hanging › By'], mac: ['Format › Paragraph… › Indentation › Special', 'Format › Paragraph… › Indentation › Special'] },
+    k: { win: 'Ctrl+T', mac: 'Cmd+T' }, kn: ['Hanging indent', 'Hanging indent'], k2: { win: 'Ctrl+Shift+T', mac: 'Cmd+Shift+T' }, k2n: ['ยกเลิก Hanging', 'Remove hanging'],
+    tip: ['อย่าใช้ Spacebar หรือ Enter ดันบรรทัด เพราะจะพังเมื่อเปลี่ยนฟอนต์หรือขนาด', 'Never push lines with Spacebar or Enter; it breaks as soon as the font or size changes.'], go: 'lab:indent' }
+ ]},
+ { id: 'references', n: ['References', 'References'], items: [
+  { id: 'toc', g: ['Table of Contents', 'Table of Contents'], ic: '☰', n: ['Table of Contents (สารบัญ)', 'Table of Contents'],
+    d: ['สร้างสารบัญจากหัวข้อที่ใช้ Heading style พร้อมเลขหน้า เมื่อแก้งานให้กด Update', 'Builds a contents page with page numbers from Heading styles. Update it after editing.'],
+    p: { win: ['References › Table of Contents › Automatic Table / Custom Table of Contents… › คลิกในสารบัญ › Update Table › Update entire table', 'References › Table of Contents › Automatic / Custom… › click inside it › Update Table › Update entire table'], mac: ['References › Table of Contents › Automatic / Custom… › Update Table', 'References › Table of Contents › Automatic / Custom… › Update Table'] },
+    k: { win: 'F9', mac: 'F9' }, kn: ['อัปเดต field ที่เลือก (Mac โน้ตบุ๊กอาจต้องกด Fn+F9)', 'Update selected field (Mac laptops may need Fn+F9)'],
+    tip: ['Custom Table of Contents… ตั้งให้แสดงกี่ระดับ (Show levels) และเปลี่ยนฟอนต์ผ่าน Modify ของ style TOC 1–3', 'Custom Table of Contents… sets how many levels to show; change its font via Modify on styles TOC 1–3.'], go: 'lab:styles' },
+  { id: 'caption', g: ['Captions', 'Captions'], ic: '❝1', n: ['Insert Caption (ภาพที่ / ตารางที่)', 'Insert Caption'],
+    d: ['ใส่ชื่อภาพ/ตารางพร้อมเลขที่รันเอง (field SEQ) สร้าง Label ภาษาไทย “ภาพที่” “ตารางที่” ได้', 'Adds figure/table titles with self-running numbers (SEQ fields). You can create Thai labels such as “ภาพที่” and “ตารางที่”.'],
+    p: { win: ['คลิกรูป › References › Captions › Insert Caption › New Label… พิมพ์ “ภาพที่” › Numbering… › Include chapter number (ถ้าต้องการ 1-1)', 'Click the picture › References › Captions › Insert Caption › New Label… “ภาพที่” › Numbering… › Include chapter number (for 1-1 style)'], mac: ['คลิกรูป › References › Insert Caption › New Label…', 'Click the picture › References › Insert Caption › New Label…'] },
+    k: { win: '', mac: '' },
+    tip: ['ตั้งชื่อให้สื่อความหมาย ไม่ต้องมีคำว่า “แสดง” เช่น “ตารางที่ 1 พื้นที่ศึกษาจำแนกตามภูมิภาค”', 'Write a meaningful title without the word “showing”, e.g. “Table 1 Study sites by region”.'], go: 'lab:captions' },
+  { id: 'crossref', g: ['Captions', 'Captions'], ic: '↗', n: ['Cross-reference (อ้างอิงข้าม)', 'Cross-reference'],
+    d: ['อ้างถึง “ภาพที่ 2” ในเนื้อความด้วย field ที่เปลี่ยนเลขตาม เมื่อภาพถูกย้าย', 'Refers to “Figure 2” in the text with a field that follows the figure when it moves.'],
+    p: { win: ['References › Captions › Cross-reference › Reference type: ภาพที่ › Insert reference to: Only label and number', 'References › Captions › Cross-reference › Reference type: Figure › Insert reference to: Only label and number'], mac: ['Insert › Cross-reference… (หรือ References › Cross-reference)', 'Insert › Cross-reference… (or References › Cross-reference)'] },
+    k: { win: 'F9', mac: 'F9' }, kn: ['เลือกทั้งเอกสาร (Ctrl+A / Cmd+A) แล้วกด F9 เพื่ออัปเดตทุก field', 'Select all (Ctrl+A / Cmd+A) then F9 to update every field'],
+    tip: ['ถ้าลบภาพแต่ยังมีการอ้างอิงอยู่ จะเห็น “Error! Reference source not found.” หลังอัปเดต ให้ค้นด้วย Ctrl+F คำว่า Error', 'Delete a figure that is still referenced and you get “Error! Reference source not found.” after updating. Search for “Error” to find them.'], go: 'lab:captions' },
+  { id: 'tof', g: ['Captions', 'Captions'], ic: '☷', n: ['Table of Figures (สารบัญภาพ/ตาราง)', 'Table of Figures'],
+    d: ['สร้างสารบัญภาพ และสารบัญตาราง จาก Caption อัตโนมัติ', 'Builds the list of figures and list of tables from your captions.'],
+    p: { win: ['References › Captions › Insert Table of Figures › Caption label: ภาพที่ (ทำซ้ำสำหรับ ตารางที่)', 'References › Captions › Insert Table of Figures › Caption label: Figure (repeat for Table)'], mac: ['Insert › Index and Tables… › Table of Figures', 'Insert › Index and Tables… › Table of Figures'] },
+    k: { win: '', mac: '' },
+    tip: ['ไฟล์ตัวอย่างในวิชามีสารบัญภาพ “ภาพที่ 1–3” และสารบัญตาราง “ตารางที่ 1–2” ที่ทำแบบนี้', 'The course template’s “ภาพที่ 1–3” and “ตารางที่ 1–2” lists are built this way.'] },
+  { id: 'footnote', g: ['Footnotes', 'Footnotes'], ic: '¹', n: ['Footnote', 'Footnote'],
+    d: ['เชิงอรรถท้ายหน้า เลขรันเองเมื่อแทรกหรือลบ', 'Notes at the foot of the page that renumber themselves.'],
+    p: { win: ['References › Footnotes › Insert Footnote', 'References › Footnotes › Insert Footnote'], mac: ['References › Insert Footnote', 'References › Insert Footnote'] },
+    k: { win: 'Ctrl+Alt+F', mac: 'Cmd+Opt+F' },
+    tip: ['งานวิทยาศาสตร์ส่วนใหญ่ใช้ระบบนาม-ปี (APA) ในเนื้อความแทนเชิงอรรถ', 'Most science writing uses author–year citations (APA) in the text instead of footnotes.'] },
+  { id: 'citation', g: ['Citations & Bibliography', 'Citations & Bibliography'], ic: '❞', n: ['Citations / EndNote', 'Citations / EndNote'],
+    d: ['อ้างอิงในเนื้อความและสร้างรายการเอกสารอ้างอิงอัตโนมัติ ด้วย Word เอง หรือแท็บ EndNote (Cite While You Write)', 'Cite in text and build the reference list automatically, with Word’s own tool or the EndNote tab (Cite While You Write).'],
+    p: { win: ['References › Insert Citation / Bibliography › Style: APA หรือแท็บ EndNote › Insert Citation', 'References › Insert Citation / Bibliography › Style: APA, or the EndNote tab › Insert Citation'], mac: ['References › Citations / แท็บ EndNote', 'References › Citations / EndNote tab'] },
+    k: { win: '', mac: '' },
+    tip: ['ศึกษาเพิ่มด้วยตัวเอง และ Convert to Plain Text เฉพาะฉบับสุดท้ายเท่านั้น', 'Study it further on your own, and only Convert to Plain Text on the final copy.'] }
+ ]},
+ { id: 'review', n: ['Review', 'Review'], items: [
+  { id: 'comment', g: ['Comments', 'Comments'], ic: '💬︎', n: ['New Comment', 'New Comment'],
+    d: ['ใส่ความเห็นข้างกระดาษโดยไม่แก้เนื้อความ ตอบกลับและกด Resolve เมื่อแก้แล้ว', 'Adds a margin note without changing the text. Reply, then Resolve when fixed.'],
+    p: { win: ['เลือกข้อความ › Review › Comments › New Comment', 'Select text › Review › Comments › New Comment'], mac: ['เลือกข้อความ › Review › New Comment', 'Select text › Review › New Comment'] },
+    k: { win: 'Ctrl+Alt+M', mac: 'Cmd+Opt+A' },
+    tip: ['ตอบคอมเมนต์อาจารย์ว่าแก้อะไร แล้วกด Resolve อย่าลบทิ้งเอง ให้อาจารย์ตรวจซ้ำได้', 'Reply to your advisor saying what you changed, then Resolve. Don’t delete comments; let them re-check.'], go: 'lab:track' },
+  { id: 'track', g: ['Tracking', 'Tracking'], ic: '✎', n: ['Track Changes', 'Track Changes'],
+    d: ['บันทึกทุกการแก้ไข: ข้อความที่เพิ่มขีดเส้นใต้ ที่ลบขีดฆ่า เห็นได้ว่าใครแก้อะไร', 'Records every edit: insertions underlined, deletions struck through, with who made them.'],
+    p: { win: ['Review › Tracking › Track Changes · เปลี่ยนมุมมองที่ Simple Markup / All Markup', 'Review › Tracking › Track Changes · switch Simple Markup / All Markup'], mac: ['Review › Track Changes · Markup options', 'Review › Track Changes · Markup options'] },
+    k: { win: 'Ctrl+Shift+E', mac: 'Cmd+Shift+E' },
+    tip: ['ใช้ All Markup ตอนตรวจ และ No Markup ตอนอ่านทวนภาพรวม', 'Use All Markup while checking and No Markup to read the result.'], go: 'lab:track' },
+  { id: 'accept', g: ['Changes', 'Changes'], ic: '✓✗', n: ['Accept / Reject', 'Accept / Reject'],
+    d: ['รับหรือปฏิเสธการแก้ไขทีละรายการ หรือทั้งหมด', 'Accept or reject edits one by one or all at once.'],
+    p: { win: ['Review › Changes › Accept ▾ / Reject ▾ › Accept All Changes', 'Review › Changes › Accept ▾ / Reject ▾ › Accept All Changes'], mac: ['Review › Accept ▾ / Reject ▾', 'Review › Accept ▾ / Reject ▾'] },
+    k: { win: '', mac: '' },
+    tip: ['Accept/Reject ให้ครบก่อนส่งฉบับถัดไป แล้ว Save As เป็นเวอร์ชันใหม่', 'Clear every change before sending the next round, then Save As a new version.'], go: 'lab:track' },
+  { id: 'compare', g: ['Compare', 'Compare'], ic: '⇄', n: ['Compare', 'Compare'],
+    d: ['เทียบไฟล์ 2 ฉบับ (เช่นฉบับเราและฉบับที่อาจารย์แก้โดยไม่ได้เปิด Track Changes) แล้วสร้างไฟล์ที่แสดงความต่างเป็น Track Changes', 'Compares two versions (e.g. yours and one your advisor edited without tracking) and shows the differences as tracked changes.'],
+    p: { win: ['Review › Compare › Compare… › Original / Revised document', 'Review › Compare › Compare… › Original / Revised document'], mac: ['Tools › Track Changes › Compare Documents…', 'Tools › Track Changes › Compare Documents…'] },
+    k: { win: '', mac: '' },
+    tip: ['ช่วยหาจุดที่ถูกแก้ซึ่งตาเปล่าหาไม่เจอ', 'Finds edits your eyes would miss.'] },
+  { id: 'spell', g: ['Proofing', 'Proofing'], ic: 'abc', n: ['Spelling & Grammar / Language', 'Spelling & Grammar / Language'],
+    d: ['ตรวจคำสะกดภาษาอังกฤษและไทย ตั้งภาษาตรวจตามส่วนของข้อความ', 'Checks English and Thai spelling. Set the proofing language for each part of the text.'],
+    p: { win: ['Review › Proofing › Editor / Language › Set Proofing Language', 'Review › Proofing › Editor / Language › Set Proofing Language'], mac: ['Review › Spelling & Grammar / Tools › Language…', 'Review › Spelling & Grammar / Tools › Language…'] },
+    k: { win: 'F7', mac: 'Cmd+Opt+L' },
+    tip: ['ชื่อเฉพาะภาษาไทยที่ขีดเส้นแดงบ่อย คลิกขวา › Add to Dictionary', 'Thai proper nouns flagged in red: right-click › Add to Dictionary.'] },
+  { id: 'wordcount', g: ['Proofing', 'Proofing'], ic: '123', n: ['Word Count', 'Word Count'],
+    d: ['นับคำของบทคัดย่อหรือทั้งเล่ม เลือกข้อความก่อนเพื่อนับเฉพาะส่วน', 'Counts words in the abstract or the whole file. Select text first to count part of it.'],
+    p: { win: ['Review › Proofing › Word Count หรือคลิกที่จำนวนคำบนแถบสถานะ', 'Review › Proofing › Word Count, or click the count on the status bar'], mac: ['Review › Word Count หรือแถบสถานะ', 'Review › Word Count, or the status bar'] },
+    k: { win: '', mac: '' },
+    tip: ['Abstract ภาษาอังกฤษมักจำกัด 250–300 คำ ตรวจก่อนส่ง', 'English abstracts are often capped at 250–300 words. Check before submitting.'] }
+ ]},
+ { id: 'view', n: ['View', 'View'], items: [
+  { id: 'navpane', g: ['Show', 'Show'], ic: '⋮☰', n: ['Navigation Pane', 'Navigation Pane'],
+    d: ['แสดงโครงหัวข้อทั้งเล่มด้านซ้าย คลิกเพื่อกระโดด และลากหัวข้อเพื่อย้ายทั้งบทพร้อมเนื้อหา', 'Shows the heading outline on the left. Click to jump, drag a heading to move the whole section with its text.'],
+    p: { win: ['View › Show › ติ๊ก Navigation Pane', 'View › Show › tick Navigation Pane'], mac: ['View › Sidebar › Navigation หรือ View › Navigation Pane', 'View › Sidebar › Navigation or View › Navigation Pane'] },
+    k: { win: 'Ctrl+F', mac: '' }, kn: ['เปิด Navigation pane พร้อมช่องค้นหา', 'Opens the Navigation pane with search'],
+    tip: ['หัวข้อที่ไม่โผล่ในแถบนี้ แปลว่ายังไม่ได้ใช้ Heading style', 'A heading missing from this pane means it does not use a Heading style yet.'], go: 'lab:styles' },
+  { id: 'ruler', g: ['Show', 'Show'], ic: '┼', n: ['Ruler', 'Ruler'],
+    d: ['ไม้บรรทัดสำหรับลากตัวเยื้องย่อหน้าและตั้ง Tab stop', 'The ruler for dragging indent markers and setting tab stops.'],
+    p: { win: ['View › Show › ติ๊ก Ruler', 'View › Show › tick Ruler'], mac: ['View › Ruler', 'View › Ruler'] },
+    k: { win: '', mac: '' },
+    tip: ['ใช้ Tab stop จัดงบประมาณและบรรทัดลงชื่อ แทนการเคาะ Spacebar', 'Use tab stops for budget lines and signature blocks instead of tapping Spacebar.'], go: 'lab:tabs' },
+  { id: 'whitespace', g: ['Views', 'Views'], ic: '⇕', n: ['ซ่อนช่องว่างระหว่างหน้า', 'Hide white space'],
+    d: ['ดับเบิลคลิกช่องว่างระหว่างหน้ากระดาษ (มุมมอง Print Layout) ข้อความจะต่อเนื่องเหมือนหน้ายาว ดับเบิลคลิกอีกครั้งเพื่อคืนค่า', 'Double-click the gap between pages (Print Layout) to read continuously. Double-click again to restore.'],
+    p: { win: ['ดับเบิลคลิกระหว่างหน้า หรือ File › Options › Display › Show white space', 'Double-click between pages, or File › Options › Display › Show white space'], mac: ['ดับเบิลคลิกระหว่างหน้า', 'Double-click between pages'] },
+    k: { win: '', mac: '' },
+    tip: ['ได้พื้นที่ทำงานเพิ่มบนจอโน้ตบุ๊ก', 'Gives you more working space on a laptop screen.'] },
+  { id: 'ribbonhide', g: ['Views', 'Views'], ic: '⌃', n: ['ย่อ/ขยาย Ribbon', 'Collapse the ribbon'],
+    d: ['ซ่อนแถบเมนูเพื่อเพิ่มพื้นที่ทำงาน คลิกชื่อแท็บเมื่อต้องการใช้', 'Hide the ribbon for more room; click a tab name when you need it.'],
+    p: { win: ['คลิก ^ มุมล่างขวาของ Ribbon หรือดับเบิลคลิกชื่อแท็บ', 'Click ^ at the ribbon’s bottom-right, or double-click a tab name'], mac: ['คลิก ^ หรือดับเบิลคลิกชื่อแท็บ', 'Click ^ or double-click a tab name'] },
+    k: { win: 'Ctrl+F1', mac: 'Cmd+Opt+R' },
+    tip: ['คู่กับการซ่อนช่องว่างระหว่างหน้า ได้จอทำงานเกือบเต็ม', 'Pair it with hidden white space for an almost full-screen page.'] },
+  { id: 'split', g: ['Window', 'Window'], ic: '⊟', n: ['Split / New Window', 'Split / New Window'],
+    d: ['แบ่งจอดูไฟล์เดียวกัน 2 ตำแหน่ง เช่น ดูวัตถุประสงค์ (บทที่ 1) ระหว่างเขียนวิธีการ (บทที่ 3)', 'View two parts of one file, e.g. objectives in Ch. 1 while writing methods in Ch. 3.'],
+    p: { win: ['View › Window › Split (หรือ New Window + View Side by Side)', 'View › Window › Split (or New Window + View Side by Side)'], mac: ['View › Split / Window › New Window', 'View › Split / Window › New Window'] },
+    k: { win: 'Ctrl+Alt+S', mac: '' },
+    tip: ['ช่วยตรวจว่าวัตถุประสงค์ วิธีการ และผลที่คาดว่าจะได้รับ สอดคล้องกัน', 'Helps you check objectives, methods and expected outcomes line up.'] },
+  { id: 'outline', g: ['Views', 'Views'], ic: '⇤⇥', n: ['Outline view', 'Outline view'],
+    d: ['มองโครงเรื่องทั้งเล่ม เลื่อนระดับหัวข้อ และย้ายบททั้งก้อน', 'See the whole structure, promote/demote headings and move whole chapters.'],
+    p: { win: ['View › Views › Outline', 'View › Views › Outline'], mac: ['View › Outline', 'View › Outline'] },
+    k: { win: 'Alt+Shift+Left / Alt+Shift+Right', mac: 'Ctrl+Shift+Left / Ctrl+Shift+Right' }, kn: ['เลื่อนระดับขึ้น/ลง (ในมุมมอง Outline)', 'Promote / demote (in Outline view)'],
+    tip: ['วางโครงหัวข้อ proposal ให้ครบก่อนเขียนเนื้อหา', 'Lay out every proposal heading before writing the body.'] }
+ ]}
+];
+
+/* Labs index */
+const LABS = [
+  { id: 'styles', ic: 'H1', n: ['Styles · เลขหัวข้อ · สารบัญ', 'Styles · numbering · contents'], s: ['ทำหัวข้อจริงด้วย Heading แล้วสร้างสารบัญ', 'Turn fake headings into real ones, then build the contents'] },
+  { id: 'captions', ic: '❝1', n: ['Caption & Cross-reference', 'Caption & Cross-reference'], s: ['ย้ายภาพแล้วดูเลขเปลี่ยน กด F9', 'Move figures, watch numbers, press F9'] },
+  { id: 'marks', ic: '¶', n: ['¶ และ Find & Replace', '¶ and Find & Replace'], s: ['หาเว้นวรรคเกินและ Enter ที่ซ่อนอยู่', 'Find hidden double spaces and Enters'] },
+  { id: 'indent', ic: '⇥', n: ['Hanging indent (เอกสารอ้างอิง)', 'Hanging indent (references)'], s: ['จัดรายการอ้างอิงด้วยไม้บรรทัด', 'Format the reference list with the ruler'] },
+  { id: 'tabs', ic: '┼', n: ['Tab stops (งบประมาณ/ลงชื่อ)', 'Tab stops (budget/signature)'], s: ['ตั้ง Tab ให้ตัวเลขตรงกัน', 'Line up numbers with tab stops'] },
+  { id: 'table', ic: '▦', n: ['ตารางข้ามหน้า', 'Tables across pages'], s: ['Repeat header row และระยะในเซลล์', 'Repeat header row and cell margins'] },
+  { id: 'sections', ic: '§', n: ['Section + เลขหน้า i / 1', 'Sections + page numbers'], s: ['ส่วนหน้าเลขโรมัน เนื้อหาเลขอารบิก', 'Roman front matter, Arabic body'] },
+  { id: 'track', ic: '✎', n: ['Track Changes + Comment', 'Track Changes + Comments'], s: ['แก้งานแบบมีร่องรอย แล้ว Accept/Reject', 'Edit with tracking, then accept or reject'] }
+];
+
+/* Shortcuts: [label, win, mac, drillable(win), drillable(mac), category] — keys verified against Microsoft Support "Keyboard shortcuts in Word" */
+const KEYS = [
+  { c: 'file', n: ['บันทึก', 'Save'], win: 'Ctrl+S', mac: 'Cmd+S' },
+  { c: 'file', n: ['บันทึกเป็น (Save As)', 'Save As'], win: 'F12', mac: 'Cmd+Shift+S', nd: { win: 1 } },
+  { c: 'file', n: ['เปิดไฟล์', 'Open'], win: 'Ctrl+O', mac: 'Cmd+O' },
+  { c: 'file', n: ['เอกสารใหม่', 'New document'], win: 'Ctrl+N', mac: 'Cmd+N', nd: { win: 1, mac: 1 } },
+  { c: 'file', n: ['พิมพ์', 'Print'], win: 'Ctrl+P', mac: 'Cmd+P' },
+  { c: 'edit', n: ['เลิกทำ (Undo)', 'Undo'], win: 'Ctrl+Z', mac: 'Cmd+Z' },
+  { c: 'edit', n: ['ทำซ้ำ (Redo)', 'Redo'], win: 'Ctrl+Y', mac: 'Cmd+Y' },
+  { c: 'edit', n: ['ตัด', 'Cut'], win: 'Ctrl+X', mac: 'Cmd+X' },
+  { c: 'edit', n: ['คัดลอก', 'Copy'], win: 'Ctrl+C', mac: 'Cmd+C' },
+  { c: 'edit', n: ['วาง', 'Paste'], win: 'Ctrl+V', mac: 'Cmd+V' },
+  { c: 'edit', n: ['วางเฉพาะข้อความ', 'Paste text only'], win: 'Ctrl+Shift+V', mac: 'Cmd+Shift+V' },
+  { c: 'edit', n: ['คัดลอกรูปแบบ (Format Painter)', 'Copy formatting'], win: 'Ctrl+Alt+C / Ctrl+Shift+C', mac: 'Cmd+Opt+C', nd: { mac: 1 } },
+  { c: 'edit', n: ['วางรูปแบบ', 'Paste formatting'], win: 'Ctrl+Alt+V', mac: 'Cmd+Opt+V' },
+  { c: 'edit', n: ['เลือกทั้งหมด', 'Select all'], win: 'Ctrl+A', mac: 'Cmd+A' },
+  { c: 'edit', n: ['ค้นหา (Navigation pane)', 'Find (Navigation pane)'], win: 'Ctrl+F', mac: 'Cmd+F' },
+  { c: 'edit', n: ['ค้นหาและแทนที่', 'Find & Replace'], win: 'Ctrl+H', mac: 'Ctrl+H' },
+  { c: 'edit', n: ['ไปยังหน้า/ตำแหน่ง (Go To)', 'Go To'], win: 'Ctrl+G', mac: 'Cmd+Opt+G' },
+  { c: 'format', n: ['ตัวหนา', 'Bold'], win: 'Ctrl+B', mac: 'Cmd+B' },
+  { c: 'format', n: ['ตัวเอียง', 'Italic'], win: 'Ctrl+I', mac: 'Cmd+I' },
+  { c: 'format', n: ['ขีดเส้นใต้', 'Underline'], win: 'Ctrl+U', mac: 'Cmd+U' },
+  { c: 'format', n: ['ขยายฟอนต์ 1 pt', 'Font size +1 pt'], win: 'Ctrl+]', mac: 'Cmd+]', nd: { mac: 1 } },
+  { c: 'format', n: ['ลดฟอนต์ 1 pt', 'Font size −1 pt'], win: 'Ctrl+[', mac: 'Cmd+[', nd: { mac: 1 } },
+  { c: 'format', n: ['สลับตัวพิมพ์เล็ก/ใหญ่', 'Change case'], win: 'Shift+F3', mac: 'Shift+F3' },
+  { c: 'format', n: ['ล้างรูปแบบตัวอักษร', 'Clear character formatting'], win: 'Ctrl+Space', mac: '' },
+  { c: 'format', n: ['ล้างรูปแบบย่อหน้า', 'Clear paragraph formatting'], win: 'Ctrl+Q', mac: '' },
+  { c: 'para', n: ['จัดกึ่งกลาง', 'Center'], win: 'Ctrl+E', mac: 'Cmd+E' },
+  { c: 'para', n: ['ชิดซ้าย', 'Align left'], win: 'Ctrl+L', mac: 'Cmd+L' },
+  { c: 'para', n: ['ชิดขวา', 'Align right'], win: 'Ctrl+R', mac: 'Cmd+R' },
+  { c: 'para', n: ['เต็มบรรทัด (Justify)', 'Justify'], win: 'Ctrl+J', mac: 'Cmd+J' },
+  { c: 'para', n: ['ระยะบรรทัด 1 เท่า', 'Single spacing'], win: 'Ctrl+1', mac: 'Cmd+1' },
+  { c: 'para', n: ['ระยะบรรทัด 1.5 เท่า', '1.5 line spacing'], win: 'Ctrl+5', mac: 'Cmd+5' },
+  { c: 'para', n: ['ระยะบรรทัด 2 เท่า', 'Double spacing'], win: 'Ctrl+2', mac: 'Cmd+2' },
+  { c: 'para', n: ['เยื้องย่อหน้า', 'Indent paragraph'], win: 'Ctrl+M', mac: 'Ctrl+Shift+M', nd: { mac: 1 } },
+  { c: 'para', n: ['ยกเลิกเยื้องย่อหน้า', 'Remove indent'], win: 'Ctrl+Shift+M', mac: 'Cmd+Shift+M' },
+  { c: 'para', n: ['Hanging indent', 'Hanging indent'], win: 'Ctrl+T', mac: 'Cmd+T', nd: { win: 1, mac: 1 } },
+  { c: 'para', n: ['ยกเลิก Hanging indent', 'Remove hanging indent'], win: 'Ctrl+Shift+T', mac: 'Cmd+Shift+T', nd: { win: 1, mac: 1 } },
+  { c: 'para', n: ['แสดง/ซ่อน ¶', 'Show/hide ¶'], win: 'Ctrl+Shift+8', mac: '' },
+  { c: 'style', n: ['Heading 1', 'Heading 1'], win: 'Ctrl+Alt+1', mac: 'Cmd+Opt+1' },
+  { c: 'style', n: ['Heading 2', 'Heading 2'], win: 'Ctrl+Alt+2', mac: 'Cmd+Opt+2' },
+  { c: 'style', n: ['Heading 3', 'Heading 3'], win: 'Ctrl+Alt+3', mac: 'Cmd+Opt+3' },
+  { c: 'style', n: ['กลับเป็น Normal', 'Normal style'], win: 'Ctrl+Shift+N', mac: 'Cmd+Shift+N', nd: { win: 1, mac: 1 } },
+  { c: 'insert', n: ['ขึ้นหน้าใหม่ (Page break)', 'Page break'], win: 'Ctrl+Enter', mac: 'Cmd+Return' },
+  { c: 'insert', n: ['ขึ้นบรรทัดใหม่ในย่อหน้าเดิม (ตัดคำ)', 'Line break (same paragraph)'], win: 'Shift+Enter', mac: 'Shift+Return' },
+  { c: 'insert', n: ['ตัดคอลัมน์', 'Column break'], win: 'Ctrl+Shift+Enter', mac: 'Cmd+Shift+Return' },
+  { c: 'insert', n: ['เว้นวรรคแบบไม่ตัดบรรทัด', 'Non-breaking space'], win: 'Ctrl+Shift+Space', mac: 'Opt+Space' },
+  { c: 'insert', n: ['Footnote', 'Footnote'], win: 'Ctrl+Alt+F', mac: 'Cmd+Opt+F' },
+  { c: 'insert', n: ['ใส่ Hyperlink', 'Hyperlink'], win: 'Ctrl+K', mac: '' },
+  { c: 'field', n: ['อัปเดต field (สารบัญ, เลขภาพ)', 'Update fields (contents, captions)'], win: 'F9', mac: 'F9' },
+  { c: 'field', n: ['สลับแสดงรหัส field ทั้งหมด', 'Toggle all field codes'], win: 'Alt+F9', mac: 'Opt+F9' },
+  { c: 'review', n: ['ใส่ Comment', 'New comment'], win: 'Ctrl+Alt+M', mac: 'Cmd+Opt+A' },
+  { c: 'review', n: ['เปิด/ปิด Track Changes', 'Track Changes on/off'], win: 'Ctrl+Shift+E', mac: 'Cmd+Shift+E' },
+  { c: 'review', n: ['ตรวจคำสะกด', 'Spelling & grammar'], win: 'F7', mac: 'Cmd+Opt+L', nd: { mac: 1 } },
+  { c: 'view', n: ['ย่อ/ขยาย Ribbon', 'Collapse/expand ribbon'], win: 'Ctrl+F1', mac: 'Cmd+Opt+R' },
+  { c: 'view', n: ['เลื่อนระดับหัวข้อขึ้น (Outline)', 'Promote heading (Outline)'], win: 'Alt+Shift+Left', mac: 'Ctrl+Shift+Left' },
+  { c: 'view', n: ['ลดระดับหัวข้อ (Outline)', 'Demote heading (Outline)'], win: 'Alt+Shift+Right', mac: 'Ctrl+Shift+Right' },
+  { c: 'os', n: ['เปิด File Explorer / Finder', 'Open File Explorer / Finder'], win: 'Win+E', mac: 'Cmd+Opt+Space', nd: { win: 1, mac: 1 } }
+];
+const KEYCAT = {
+  file: ['ไฟล์', 'File'], edit: ['แก้ไข', 'Edit'], format: ['ตัวอักษร', 'Font'], para: ['ย่อหน้า', 'Paragraph'],
+  style: ['Style', 'Styles'], insert: ['แทรก', 'Insert'], field: ['Field', 'Fields'], review: ['ตรวจทาน', 'Review'], view: ['มุมมอง', 'View'], os: ['ระบบ', 'System']
+};
+
+/* Settings (from the handout's File/Options screenshots + extras) */
+const SETUP = [
+  { n: ['หน่วยวัดเป็นเซนติเมตร', 'Measure in centimetres'], why: ['ระยะขอบและย่อหน้าในคู่มือคณะเป็น cm/นิ้ว ตั้งให้ตรงจะไม่ต้องแปลงเอง', 'Faculty guides give margins and indents in cm or inches; matching units saves conversions.'],
+    win: ['File › Options › Advanced › Display › Show measurements in units of: Centimeters', 'File › Options › Advanced › Display › Show measurements in units of: Centimeters'],
+    mac: ['Word › Preferences › General › Show measurements in units of: Centimeters', 'Word › Preferences › General › Show measurements in units of: Centimeters'], from: true },
+  { n: ['แสดงไฟล์ล่าสุด 50 ไฟล์', 'Show 50 recent documents'], why: ['เปิดไฟล์เวอร์ชันก่อนหน้าได้เร็วจาก File › Open', 'Open earlier versions quickly from File › Open.'],
+    win: ['File › Options › Advanced › Display › Show this number of Recent Documents: 50', 'File › Options › Advanced › Display › Show this number of Recent Documents: 50'],
+    mac: ['File › Open Recent (Mac จำนวนรายการขึ้นกับระบบ)', 'File › Open Recent (the count is set by macOS)'], from: true },
+  { n: ['ไม่บีบอัดรูปภาพ', 'Do not compress images'], why: ['กราฟและแผนที่ในบทที่ 3 จะคมชัดเมื่อพิมพ์', 'Graphs and maps in Chapter 3 stay sharp in print.'],
+    win: ['File › Options › Advanced › Image Size and Quality › ติ๊ก “Do not compress images in file” · Default resolution: 330 ppi', 'File › Options › Advanced › Image Size and Quality › tick “Do not compress images in file” · Default resolution: 330 ppi'],
+    mac: ['คลิกรูป › Picture Format › Compress Pictures (เลือกคุณภาพสูง) / File › Reduce File Size…', 'Click a picture › Picture Format › Compress Pictures (high quality) / File › Reduce File Size…'], from: true },
+  { n: ['ปิดการสลับแป้นพิมพ์อัตโนมัติ', 'Stop automatic keyboard switching'], why: ['คลิกในข้อความอังกฤษแล้วแป้นพิมพ์เปลี่ยนเป็นอังกฤษเอง ทำให้พิมพ์ไทยผิด', 'Clicking into English text silently switches your keyboard, so your Thai comes out wrong.'],
+    win: ['File › Options › Advanced › Editing options › เอาติ๊ก “Automatically switch keyboard to match language of surrounding text” ออก', 'File › Options › Advanced › Editing options › untick “Automatically switch keyboard to match language of surrounding text”'],
+    mac: ['ไม่มีตัวเลือกนี้ใน Word for Mac (macOS เปลี่ยนแป้นพิมพ์ด้วย Ctrl+Space หรือปุ่ม Globe)', 'Not in Word for Mac (macOS switches input with Ctrl+Space or the Globe key)'], from: true },
+  { n: ['AutoSave / AutoRecover ทุก 5 นาที', 'AutoSave / AutoRecover every 5 min'], why: ['ไฟฟ้าดับหรือโปรแกรมค้าง งานหายไม่เกิน 5 นาที', 'A power cut or crash costs at most 5 minutes of work.'],
+    win: ['File › Options › Save › Save AutoRecover information every 5 minutes + เปิด AutoSave เมื่อเก็บบน OneDrive', 'File › Options › Save › Save AutoRecover information every 5 minutes, and turn on AutoSave for OneDrive files'],
+    mac: ['Word › Preferences › Save › Turn on AutoSave by default / Save every 5 minutes', 'Word › Preferences › Save › Turn on AutoSave by default / Save every 5 minutes'] },
+  { n: ['ฝังฟอนต์ในไฟล์', 'Embed fonts'], why: ['เครื่องที่ไม่มี TH Sarabun New ก็เห็นหน้าเดียวกัน', 'Machines without TH Sarabun New still see the same layout.'],
+    win: ['File › Options › Save › Embed fonts in the file', 'File › Options › Save › Embed fonts in the file'],
+    mac: ['Word › Preferences › Save › Embed fonts in the file', 'Word › Preferences › Save › Embed fonts in the file'] },
+  { n: ['ฟอนต์เริ่มต้น TH Sarabun New 16', 'Default font TH Sarabun New 16'], why: ['ไฟล์ใหม่ทุกไฟล์ใช้ฟอนต์ตามมาตรฐานเอกสารไทย', 'Every new file starts in the standard Thai document font.'],
+    win: ['Home › Font › ลูกศรมุมกลุ่ม › ตั้งฟอนต์ › Set As Default › All documents based on the Normal template', 'Home › Font › dialog launcher › choose the font › Set As Default › All documents based on the Normal template'],
+    mac: ['Format › Font… › ตั้งฟอนต์ › Default… › Yes', 'Format › Font… › choose the font › Default… › Yes'] },
+  { n: ['AutoCorrect คำยาวที่พิมพ์บ่อย', 'AutoCorrect for long repeated terms'], why: ['พิมพ์ “cuu” แล้วกลายเป็น “จุฬาลงกรณ์มหาวิทยาลัย” ทันที', 'Type “cuu” and get “Chulalongkorn University” instantly.'],
+    win: ['File › Options › Proofing › AutoCorrect Options… › Replace: cuu / With: จุฬาลงกรณ์มหาวิทยาลัย', 'File › Options › Proofing › AutoCorrect Options… › Replace: cuu / With: Chulalongkorn University'],
+    mac: ['Word › Preferences › AutoCorrect › Replace / With', 'Word › Preferences › AutoCorrect › Replace / With'] },
+  { n: ['Quick Access Toolbar (ไอคอนลัด)', 'Quick Access Toolbar'], why: ['เอาปุ่มที่ใช้บ่อย (¶, Insert Caption, Cross-reference, Update Field) มาไว้แถบบนสุด และ Export ไปใช้ที่เครื่องอื่น', 'Put frequent buttons (¶, Insert Caption, Cross-reference, Update Field) in the top bar, and export them to another computer.'],
+    win: ['คลิกขวาปุ่มใดก็ได้ › Add to Quick Access Toolbar · File › Options › Quick Access Toolbar › Import/Export › Export all customizations', 'Right-click any button › Add to Quick Access Toolbar · File › Options › Quick Access Toolbar › Import/Export › Export all customizations'],
+    mac: ['คลิก … ท้ายแถบด้านบน › More Commands… (หรือ Word › Preferences › Ribbon & Toolbar)', 'Click … at the end of the top bar › More Commands… (or Word › Preferences › Ribbon & Toolbar)'], from: true }
+];
+
+const IOS = {
+  can: [['เปิดอ่าน แก้ข้อความ ใส่ตัวหนา/เอียง เลือก Style สำเร็จรูป', 'Open, edit text, bold/italic, apply built-in styles'],
+        ['อ่านและตอบ Comment, เปิด Track Changes, Accept/Reject', 'Read and reply to comments, turn on Track Changes, accept/reject'],
+        ['แทรกรูป ตาราง เลขหน้าพื้นฐาน และ Export PDF', 'Insert pictures, tables, basic page numbers, export PDF']],
+  cant: [['สร้าง/แก้ Style และ Multilevel list แบบละเอียด', 'Create or edit styles and multilevel lists in detail'],
+         ['Insert Caption, Cross-reference, สารบัญภาพ ทำได้จำกัดหรือไม่มี', 'Insert Caption, cross-references and figure lists are limited or missing'],
+         ['Section break + เลขหน้าแยกส่วน และ EndNote ไม่สะดวก', 'Section breaks with separate numbering and EndNote are impractical']],
+  note: ['ใช้ iPad อ่านคอมเมนต์อาจารย์และแก้ข้อความเล็กน้อย ส่วนการจัดรูปแบบทั้งเล่มให้ทำบน Windows หรือ Mac · แป้นลัดบนคีย์บอร์ด iPad ส่วนใหญ่ใช้ ⌘ เหมือน Mac (กด ⌘ ค้างเพื่อดูรายการ)', 'Use the iPad to read advisor comments and make small edits; do whole-document formatting on Windows or Mac · With an iPad keyboard most shortcuts use ⌘ like the Mac (hold ⌘ to see the list)']
+};
+
+const QUIZ = [
+  { q: ['อยากให้ Word สร้างสารบัญอัตโนมัติ ต้องทำอะไรก่อน', 'You want Word to build the contents page automatically. What must come first?'],
+    o: [['ทำหัวข้อเป็นตัวหนาขนาด 18', 'Make headings bold, size 18'], ['ใช้ Heading 1–3 กับหัวข้อ', 'Apply Heading 1–3 to headings'], ['พิมพ์เลขหัวข้อเอง', 'Type the numbers yourself'], ['ใส่ Page break ก่อนทุกหัวข้อ', 'Put a page break before each heading']],
+    a: 1, e: ['สารบัญ Navigation Pane และ Bookmark ใน PDF อ่านจาก Heading style เท่านั้น', 'The contents page, Navigation Pane and PDF bookmarks all read Heading styles only.'] },
+  { q: ['หัวข้อบทที่ 2 ค้างอยู่ท้ายหน้า วิธีที่ถูกต้องคือ', 'The Chapter 2 heading sits at the bottom of a page. The right fix is'],
+    o: [['กด Enter จนขึ้นหน้าใหม่', 'Press Enter until it moves'], ['Page break (Ctrl+Enter / Cmd+Return) หรือ Page break before ใน Heading 1', 'Page break (Ctrl+Enter / Cmd+Return) or Page break before in Heading 1'], ['ลดขนาดฟอนต์หน้านั้น', 'Shrink the font on that page'], ['ลบหัวข้อแล้วพิมพ์ใหม่', 'Delete and retype the heading']],
+    a: 1, e: ['Enter หลายครั้งจะเลื่อนเพี้ยนทันทีที่แก้ข้อความด้านบน', 'Stacked Enters shift as soon as you edit anything above.'] },
+  { q: ['ตำแหน่งชื่อที่นิยมในวิทยานิพนธ์ไทย', 'Usual caption positions in Thai theses'],
+    o: [['ภาพ: ใต้ภาพ / ตาราง: เหนือตาราง', 'Figure: below / Table: above'], ['ทั้งสองอย่างไว้ใต้', 'Both below'], ['ทั้งสองอย่างไว้เหนือ', 'Both above'], ['ภาพ: เหนือ / ตาราง: ใต้', 'Figure: above / Table: below']],
+    a: 0, e: ['ผู้อ่านอ่านตารางจากหัวลงล่าง จึงต้องรู้ชื่อก่อน ส่วนภาพดูก่อนแล้วอ่านคำบรรยาย (ตรวจคู่มือคณะอีกครั้ง)', 'Readers read a table top-down so they need the title first; figures are seen first, then explained. (Check your faculty guide.)'] },
+  { q: ['ย้ายภาพที่ 3 ขึ้นไปไว้ก่อนภาพที่ 1 แล้วเลขยังไม่เปลี่ยน ทำอย่างไร', 'You moved Figure 3 above Figure 1 and the numbers did not change. What now?'],
+    o: [['แก้เลขเองทีละภาพ', 'Retype each number'], ['เลือกทั้งเอกสารแล้วกด F9', 'Select all, then press F9'], ['ลบ Caption แล้วใส่ใหม่', 'Delete and re-add the captions'], ['Save แล้วเปิดใหม่', 'Save and reopen']],
+    a: 1, e: ['Caption และ Cross-reference เป็น field ต้องสั่งอัปเดต (Mac โน้ตบุ๊กอาจต้อง Fn+F9)', 'Captions and cross-references are fields that need updating (Mac laptops may need Fn+F9).'] },
+  { q: ['รายการเอกสารอ้างอิงแบบ APA บรรทัดที่ 2 เป็นต้นไปต้องเยื้องเข้า ใช้อะไร', 'APA references indent the second line onward. What do you use?'],
+    o: [['เคาะ Spacebar หน้าบรรทัด', 'Spaces at the start of the line'], ['Tab ทุกบรรทัด', 'A tab on each line'], ['Hanging indent 1.27 cm (Ctrl+T / Cmd+T)', 'Hanging indent 1.27 cm (Ctrl+T / Cmd+T)'], ['First line indent', 'First-line indent']],
+    a: 2, e: ['Hanging indent ทำให้บรรทัดแรกชิดซ้าย บรรทัดถัดไปเยื้อง และคงรูปเมื่อแก้ข้อความ', 'A hanging indent keeps line one flush left and indents the rest, and it survives edits.'] },
+  { q: ['ส่วนหน้าใช้เลข i, ii ส่วนเนื้อหาเริ่ม 1 ต้องใช้อะไร', 'Front matter needs i, ii and the body starts at 1. What do you need?'],
+    o: [['Page break', 'Page break'], ['Section break (Next Page) + Format Page Numbers', 'Section break (Next Page) + Format Page Numbers'], ['แยกเป็น 2 ไฟล์', 'Two separate files'], ['พิมพ์เลขหน้าเองใน Footer', 'Type numbers in the footer']],
+    a: 1, e: ['เลขหน้าแต่ละรูปแบบต้องอยู่คนละ Section แล้วตั้ง Start at: 1 ใน Section เนื้อหา', 'Each numbering style needs its own section; set Start at: 1 in the body section.'] },
+  { q: ['ตารางยาว 3 หน้า อยากให้หัวตารางขึ้นทุกหน้า', 'A table runs over 3 pages and you want its header on each page'],
+    o: [['คัดลอกแถวหัวไปวางทุกหน้า', 'Copy the header row onto each page'], ['Table Layout › Repeat Header Rows', 'Table Layout › Repeat Header Rows'], ['แยกเป็น 3 ตาราง', 'Split it into 3 tables'], ['ใช้ Header ของหน้า', 'Use the page header']],
+    a: 1, e: ['หัวตารางที่ทำซ้ำจะย้ายตามเองเมื่อแถวเลื่อนข้ามหน้า', 'Repeated header rows follow the table as rows move across pages.'] },
+  { q: ['ย่อหน้าภาษาไทยแบบ Justify มีช่องโหว่กว้าง ควรใช้', 'Justified Thai text has wide gaps. Use'],
+    o: [['Align Left', 'Align Left'], ['Thai Distributed', 'Thai Distributed'], ['ลดฟอนต์', 'A smaller font'], ['เพิ่มเว้นวรรค', 'More spaces']],
+    a: 1, e: ['Thai Distributed กระจายระยะระหว่างตัวอักษร เพราะภาษาไทยมีช่องว่างระหว่างคำน้อย', 'Thai Distributed spreads spacing between characters because Thai has few word spaces.'] },
+  { q: ['คัดลอกข้อความจาก PDF แล้วฟอนต์และสีเพี้ยน ควรวางด้วย', 'Text copied from a PDF brings odd fonts and colours. Paste with'],
+    o: [['Ctrl+V / Cmd+V', 'Ctrl+V / Cmd+V'], ['Ctrl+Shift+V / Cmd+Shift+V (Keep Text Only)', 'Ctrl+Shift+V / Cmd+Shift+V (Keep Text Only)'], ['Ctrl+Alt+V / Cmd+Opt+V', 'Ctrl+Alt+V / Cmd+Opt+V'], ['ลากวาง', 'Drag and drop']],
+    a: 1, e: ['Keep Text Only ตัดรูปแบบทิ้ง แล้วข้อความจะรับ Style ของย่อหน้าที่วาง (Ctrl+Alt+V คือวางรูปแบบ)', 'Keep Text Only drops formatting so the text takes the paragraph’s style. (Ctrl+Alt+V pastes formatting.)'] },
+  { q: ['บน Mac ใส่ Heading 1 ด้วยแป้นใด', 'On a Mac, which keys apply Heading 1?'],
+    o: [['Ctrl+Alt+1', 'Ctrl+Alt+1'], ['Cmd+1', 'Cmd+1'], ['Cmd+Option+1', 'Cmd+Option+1'], ['Shift+F1', 'Shift+F1']],
+    a: 2, e: ['Windows ใช้ Ctrl+Alt+1 ส่วน Mac ใช้ ⌘+⌥+1 (Cmd+1 คือระยะบรรทัด 1 เท่า)', 'Windows uses Ctrl+Alt+1; Mac uses ⌘+⌥+1. (Cmd+1 sets single spacing.)'] }
+];
+
+const CHECK = [
+  ['กระดาษ A4 และระยะขอบตามคู่มือคณะ', 'A4 paper and faculty margins'],
+  ['ฟอนต์ TH Sarabun New ขนาดตามคู่มือ และฝังฟอนต์แล้ว', 'TH Sarabun New at the required size, fonts embedded'],
+  ['หัวข้อทุกระดับใช้ Heading style และเลขหัวข้อรันเอง', 'Every heading uses a Heading style with automatic numbers'],
+  ['ไม่มี Enter ว่างหลายบรรทัด (ตรวจด้วย ¶)', 'No stacked empty Enters (check with ¶)'],
+  ['ไม่มีเว้นวรรค 2 ครั้ง (Replace “  ” = 0 รายการ)', 'No double spaces (Replace “  ” finds 0)'],
+  ['ภาพและตารางใช้ Insert Caption ชื่อสื่อความหมาย ไม่มีคำว่า “แสดง”', 'Figures and tables use Insert Caption with meaningful titles'],
+  ['การอ้างถึงภาพ/ตารางใช้ Cross-reference และไม่มีคำว่า Error!', 'Figure/table mentions use cross-references, no “Error!” left'],
+  ['ตารางข้ามหน้ามีหัวตารางซ้ำ', 'Tables crossing pages repeat their header row'],
+  ['เอกสารอ้างอิงใช้ Hanging indent และตรงกับการอ้างในเนื้อความ', 'References use a hanging indent and match in-text citations'],
+  ['เลขหน้า: ส่วนหน้า i, ii เนื้อหาเริ่ม 1', 'Page numbers: front matter i, ii; body from 1'],
+  ['เลือกทั้งเอกสาร (Ctrl+A / Cmd+A) แล้วกด F9 อัปเดตสารบัญและ field ทั้งหมด', 'Select all (Ctrl+A / Cmd+A) and press F9 to update contents and fields'],
+  ['Accept/Reject Track Changes และ Resolve Comment ครบ', 'All tracked changes accepted/rejected and comments resolved'],
+  ['ตรวจคำสะกด (F7) และชื่อวิทยาศาสตร์เป็นตัวเอียง', 'Spell-checked (F7), scientific names italicised'],
+  ['ตั้งชื่อไฟล์ YYYYMMDD_รหัสนิสิต_Proposal_vXX และ Export PDF', 'Named YYYYMMDD_StudentID_Proposal_vXX and exported to PDF']
+];
+
+const RESOURCES = [
+  { n: 'Thai Digital Collection (TDC)', d: ['วิทยานิพนธ์และงานวิจัยฉบับเต็มจากมหาวิทยาลัยไทย (นอกเครือข่ายต้องสมัครสมาชิก)', 'Full-text Thai theses and research (registration needed off campus)'], u: 'http://tdc.thailis.or.th/tdc/basic.php' },
+  { n: 'ThaiJO (Thai Journals Online)', d: ['วารสารวิชาการไทยทุกสาขา ฉบับเต็ม', 'Thai academic journals in all fields, full text'], u: 'https://www.tci-thaijo.org' },
+  { n: 'Research Gateway (วช.)', d: ['เชื่อมฐานข้อมูลวิจัยในประเทศ เช่น TNRR, DRIC', 'Gateway to national research databases such as TNRR and DRIC'], u: 'http://www.researchgateway.in.th' },
+  { n: 'CUIR — คลังปัญญาจุฬาฯ', d: ['คลังวิจัยสถาบันของจุฬาลงกรณ์มหาวิทยาลัย', 'Chulalongkorn University Intellectual Repository'], u: 'https://cuir.car.chula.ac.th' },
+  { n: 'ProQuest Dissertations & Theses', d: ['วิทยานิพนธ์ระดับโท-เอกจากทั่วโลก', 'Master’s and doctoral theses worldwide'], u: 'http://search.proquest.com' },
+  { n: 'Google Scholar', d: ['ค้นบทความวิชาการและดูการอ้างอิง', 'Search scholarly papers and citations'], u: 'https://scholar.google.com/' },
+  { n: 'SciSpace (typeset.io)', d: ['ผู้ช่วย AI อ่านและสรุปบทความ', 'AI assistant for reading papers'], u: 'https://typeset.io/' }
+];
+
+/* ===== Proposal Word Lab — app logic ===== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('pwl:' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('pwl:' + k, JSON.stringify(v)); } catch (e) { } }
+};
+function detectOS() {
+  try { const p = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent; if (/mac|iphone|ipad|ipod/i.test(p)) return 'mac'; } catch (e) { }
+  return 'win';
+}
+const S = { lang: store.get('lang', 'th'), os: store.get('os', detectOS()), view: 'start', rtab: 'home', ritem: 'styles', rq: '', lab: 'styles', done: {} };
+const L = () => (S.lang === 'th' ? 0 : 1);
+const tr = a => (Array.isArray(a) ? a[L()] : (a == null ? '' : a));
+const t = k => (UI[k] ? UI[k][L()] : k);
+const OSN = { win: 'Windows', mac: 'Mac' };
+const TT = (th, en) => (S.lang === 'th' ? th : en);
+
+/* ---------- keys ---------- */
+const KEYNAME = { Cmd: '⌘ Cmd', Opt: '⌥ Option', Shift: '⇧ Shift', Left: '←', Right: '→', Up: '↑', Down: '↓' };
+function dispKey(k, os) { if (os === 'mac' && k === 'Ctrl') return '⌃ Control'; if (os === 'mac' && k === 'Enter') return 'Return'; return KEYNAME[k] || k; }
+function keysHTML(str, os = S.os) {
+  if (!str) return '';
+  return '<span class="keys">' + str.split(' / ').map(c => c.split('+').map(k => '<kbd>' + esc(dispKey(k, os)) + '</kbd>').join('<span class="plus">+</span>')).join('<span class="or">/</span>') + '</span>';
+}
+function keyCode(k) {
+  if (/^[A-Z]$/.test(k)) return 'Key' + k;
+  if (/^[0-9]$/.test(k)) return 'Digit' + k;
+  if (/^F\d+$/.test(k)) return k;
+  return ({ Enter: 'Enter', Return: 'Enter', Space: 'Space', ']': 'BracketRight', '[': 'BracketLeft', '=': 'Equal', '-': 'Minus', ',': 'Comma', Left: 'ArrowLeft', Right: 'ArrowRight', Up: 'ArrowUp', Down: 'ArrowDown' })[k] || k;
+}
+const MODMAP = { Cmd: 'meta', Opt: 'alt', Alt: 'alt', Ctrl: 'ctrl', Shift: 'shift', Win: 'meta' };
+function parseCombo(s) { const parts = s.split('+'); const key = parts.pop(); return { mods: parts.map(m => MODMAP[m]).sort().join(','), code: keyCode(key) }; }
+function eventCombo(e) {
+  const m = []; if (e.altKey) m.push('alt'); if (e.ctrlKey) m.push('ctrl'); if (e.metaKey) m.push('meta'); if (e.shiftKey) m.push('shift');
+  return { mods: m.sort().join(','), code: e.code === 'NumpadEnter' ? 'Enter' : e.code };
+}
+function matches(e, str) { if (!str) return false; const ec = eventCombo(e); return str.split(' / ').some(s => { const c = parseCombo(s); return c.mods === ec.mods && c.code === ec.code; }); }
+function isModOnly(e) { return /^(Shift|Control|Alt|Meta|OS|CapsLock)/.test(e.code) || ['Shift', 'Control', 'Alt', 'Meta'].includes(e.key); }
+function pressedLabel(e) {
+  const os = S.os; const parts = [];
+  if (e.ctrlKey) parts.push(os === 'mac' ? '⌃ Control' : 'Ctrl');
+  if (e.metaKey) parts.push(os === 'mac' ? '⌘ Cmd' : 'Win');
+  if (e.altKey) parts.push(os === 'mac' ? '⌥ Option' : 'Alt');
+  if (e.shiftKey) parts.push('⇧ Shift');
+  let k = e.code.replace(/^Key/, '').replace(/^Digit/, '').replace(/^Arrow/, '');
+  k = ({ BracketLeft: '[', BracketRight: ']', Equal: '=', Minus: '-', Comma: ',', Space: 'Space', Enter: os === 'mac' ? 'Return' : 'Enter', NumpadEnter: 'Enter' })[k] || k;
+  parts.push(k);
+  return '<span class="keys">' + parts.map(p => '<kbd>' + esc(p) + '</kbd>').join('<span class="plus">+</span>') + '</span>';
+}
+const K = (win, mac) => (S.os === 'mac' ? mac : win);
+
+/* ---------- routing ---------- */
+const VIEWS = ['start', 'ribbon', 'labs', 'keys', 'setup', 'quiz', 'check'];
+function go(target) {
+  const [v, sub] = target.split(':');
+  location.hash = (v === 'lab' ? 'labs' : v) + (sub ? '-' + sub : '');
+}
+function route() {
+  const h = location.hash.slice(1);
+  const i = h.indexOf('-');
+  let v = i < 0 ? h : h.slice(0, i); const sub = i < 0 ? '' : h.slice(i + 1);
+  if (!VIEWS.includes(v)) v = 'start';
+  S.view = v;
+  if (v === 'labs' && sub && LABS.some(l => l.id === sub)) S.lab = sub;
+  if (v === 'ribbon' && sub && RIBBON.some(r => r.id === sub)) { if (S.rtab !== sub) { S.rtab = sub; S.ritem = RIBBON.find(r => r.id === sub).items[0].id; } }
+  VIEWS.forEach(x => { $('#v-' + x).hidden = x !== v; });
+  $$('nav.tabs a').forEach(a => a.setAttribute('aria-current', a.dataset.v === v ? 'page' : 'false'));
+  renderView(v);
+}
+function renderView(v) {
+  ({ start: renderStart, ribbon: renderRibbon, labs: renderLabs, keys: renderKeys, setup: renderSetup, quiz: renderQuiz, check: renderCheck })[v]();
+}
+function applyChrome() {
+  document.documentElement.lang = S.lang;
+  $$('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
+  $$('#osSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.os === S.os)));
+  $$('#langSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === S.lang)));
+}
+function keepFocus(id, fn) { const had = document.activeElement && document.activeElement.id === id; fn(); if (had) { const el = document.getElementById(id); if (el) el.focus({ preventScroll: true }); } }
+
+/* ---------- start ---------- */
+function renderStart() {
+  const flow = FLOW.map(f => `<button type="button" data-go="${f.go}"><b>${esc(tr(f.t))}</b><span>${esc(tr(f.d))}</span></button>`).join('');
+  $('#v-start').innerHTML = `
+  <div class="hero">
+    <div>
+      <div class="kick">${esc(t('heroKicker'))}</div>
+      <h1>${esc(t('heroTitle'))}</h1>
+      <p class="lead">${esc(t('heroLead'))}</p>
+      <div class="row" style="margin-top:16px"><a class="btn primary" href="#labs-styles">${esc(t('goLab'))} →</a><a class="btn" href="#ribbon-home">${esc(t('navRibbon'))}</a><a class="btn" href="#keys">${esc(t('navKeys'))}</a></div>
+      <p class="src">${esc(t('heroSource'))}</p>
+    </div>
+    <div class="sheetbox" aria-hidden="true">
+      <div class="sheet">
+        <div class="marg"></div>
+        <span class="tag" style="top:3%;left:40%">3.81 cm</span>
+        <span class="tag" style="top:46%;left:1%;writing-mode:vertical-rl">3.81 cm</span>
+        <div class="h"><i>1</i>${esc(TT('บทนำ', 'Introduction'))}</div>
+        <div class="h" style="font-size:.95em"><i>1.1</i>${esc(TT('ความเป็นมาและความสำคัญ', 'Background'))}</div>
+        <div class="ln" style="margin-left:12%"></div><div class="ln"></div><div class="ln"></div><div class="ln" style="width:55%"></div>
+        <div class="h" style="font-size:.95em"><i>1.2</i>${esc(TT('วัตถุประสงค์', 'Objectives'))}</div>
+        <div class="ln" style="margin-left:12%"></div><div class="ln" style="width:70%"></div>
+        <div style="margin:1em auto .3em;width:62%;aspect-ratio:16/8;border:1px solid var(--line);border-radius:3px;background:var(--accent-soft)"></div>
+        <div style="text-align:center;font-weight:700">${esc(TT('ภาพที่ 1 พื้นที่ศึกษา', 'Figure 1 Study area'))}</div>
+        <div class="ln"></div><div class="ln" style="width:40%"></div>
+        <span class="pil" style="top:56%">¶</span>
+        <div style="position:absolute;bottom:4%;left:0;right:0;text-align:center;font:600 1em var(--f-mono);color:var(--muted)">1</div>
+      </div>
+    </div>
+  </div>
+  <div class="panel" style="display:grid;gap:14px">
+    <div class="head"><h2>${esc(t('flowTitle'))}</h2><p class="muted">${esc(t('flowNote'))}</p></div>
+    <div class="flow">${flow}</div>
+  </div>`;
+}
+
+/* ---------- ribbon ---------- */
+function allItems() { const out = []; RIBBON.forEach(tab => tab.items.forEach(it => out.push({ tab, it }))); return out; }
+function searchItems(q) {
+  q = q.trim().toLowerCase(); if (!q) return [];
+  return allItems().filter(({ it }) => [it.n, it.d, it.tip].some(a => a && (a[0] + ' ' + a[1]).toLowerCase().includes(q)) || (it.k && (it.k.win + ' ' + it.k.mac).toLowerCase().includes(q)));
+}
+function renderRibbon() {
+  const tab = RIBBON.find(r => r.id === S.rtab) || RIBBON[1];
+  const hits = searchItems(S.rq); const hitIds = new Set(hits.map(h => h.it.id));
+  const groups = []; tab.items.forEach(it => { const g = tr(it.g); let gr = groups.find(x => x.g === g); if (!gr) { gr = { g, items: [] }; groups.push(gr); } gr.items.push(it); });
+  const item = tab.items.find(i => i.id === S.ritem) || tab.items[0];
+  const kRow = (label, o) => {
+    if (!o) return '';
+    return `<div class="os ${S.os === 'win' ? 'cur' : ''}">Windows</div><div>${o.win ? keysHTML(o.win, 'win') : '<span class="muted small">—</span>'}</div>
+            <div class="os ${S.os === 'mac' ? 'cur' : ''}">Mac</div><div>${o.mac ? keysHTML(o.mac, 'mac') : '<span class="muted small">—</span>'}</div>`;
+  };
+  const cur = item.k && item.k[S.os];
+  $('#v-ribbon').innerHTML = `
+  <div class="head"><h2>${esc(t('ribbonTitle'))}</h2><p class="muted">${esc(t('ribbonLead'))}</p></div>
+  <div class="ribbon">
+    <div class="rtabs" role="tablist">${RIBBON.map(r => `<button type="button" role="tab" class="${r.id === 'file' ? 'file' : ''}" aria-selected="${r.id === tab.id}" data-rtab="${r.id}">${esc(tr(r.n))}</button>`).join('')}</div>
+    <div class="rbody">${groups.map(g => `<div class="rgroup"><div class="btns">${g.items.map(it => `<button type="button" class="rbtn ${hitIds.has(it.id) ? 'hit' : ''}" aria-pressed="${it.id === item.id}" data-ritem="${it.id}"><span class="ic">${esc(it.ic)}</span>${esc(tr(it.n))}</button>`).join('')}</div><div class="gl">${esc(g.g)}</div></div>`).join('')}</div>
+    <div class="rsearch"><span aria-hidden="true">⌕</span><input type="text" id="rq" placeholder="${esc(t('searchPh'))}" value="${esc(S.rq)}" aria-label="${esc(t('searchPh'))}"><span class="muted small">${keysHTML(K('Alt+Q', ''), S.os)}</span></div>
+    ${S.rq.trim() ? `<div class="results">${hits.length ? hits.map(h => `<button type="button" data-jump="${h.tab.id}:${h.it.id}">${esc(tr(h.tab.n))} › ${esc(tr(h.it.n))}</button>`).join('') : `<span class="muted small">${esc(t('noResult'))}</span>`}</div>` : ''}
+  </div>
+  <div class="panel detail">
+    <div>
+      <h3><span class="ic">${esc(item.ic)}</span>${esc(tr(item.n))}</h3>
+      <p style="margin-top:8px">${esc(tr(item.d))}</p>
+      <div class="lbl">${esc(t('where'))} · ${OSN[S.os]}</div>
+      <div class="path">${esc(tr(item.p[S.os]))}</div>
+      <div class="lbl">${OSN[S.os === 'win' ? 'mac' : 'win']}</div>
+      <div class="small muted">${esc(tr(item.p[S.os === 'win' ? 'mac' : 'win']))}</div>
+    </div>
+    <div style="display:grid;gap:12px;align-content:start">
+      <div><div class="lbl" style="margin-top:0">${esc(t('shortcut'))}${item.kn ? ' · ' + esc(tr(item.kn)) : ''}</div>
+        ${cur || (item.k && item.k[S.os === 'win' ? 'mac' : 'win']) ? `<div class="oscmp">${kRow('', item.k)}</div>` : `<p class="small muted">${esc(t('noShortcut'))}</p>`}
+        ${item.k2 ? `<div class="lbl">${esc(tr(item.k2n))}</div><div class="oscmp">${kRow('', item.k2)}</div>` : ''}
+      </div>
+      <div><div class="lbl" style="margin-top:0">${esc(t('tipProposal'))}</div><div class="tip">${esc(tr(item.tip))}</div></div>
+      ${item.go ? `<div><button type="button" class="btn primary" data-go="${item.go}">${esc(item.go.startsWith('lab') ? t('goLab') : t('navSetup'))} →</button></div>` : ''}
+    </div>
+  </div>`;
+}
+
+/* ---------- labs ---------- */
+function renderLabs() {
+  const fns = { styles: labStyles, captions: labCaptions, marks: labMarks, indent: labIndent, tabs: labTabs, table: labTable, sections: labSections, track: labTrack };
+  const v = $('#v-labs');
+  if (!$('#labArea', v)) {
+    v.innerHTML = `<div class="head"><h2></h2><p class="muted"></p></div><div class="labnav" id="labNav"></div><div class="panel lab" id="labArea"></div>`;
+  }
+  $('.head h2', v).textContent = t('labsTitle'); $('.head p', v).textContent = t('labsLead');
+  fns[S.lab]();
+  $('#labNav').innerHTML = LABS.map(l => `<button type="button" data-lab="${l.id}" aria-pressed="${l.id === S.lab}"><span class="ic">${esc(l.ic)}</span><span style="min-width:0"><b>${esc(tr(l.n))}</b><span>${esc(tr(l.s))}</span></span>${S.done[l.id] ? `<span class="okdot" title="${esc(t('done'))}">✓</span>` : ''}</button>`).join('');
+}
+function rerenderLab() { if (S.view === 'labs') renderLabs(); }
+function statusPill(ok) { return `<span class="status ${ok ? 'ok' : ''}">${ok ? '✓ ' + esc(t('done')) : '○ ' + esc(t('todo'))}</span>`; }
+function labHead(id, ok, extra = '') {
+  const l = LABS.find(x => x.id === id); S.done[id] = ok;
+  return `<div class="labhead"><h3>${esc(tr(l.n))}</h3><div class="row">${statusPill(ok)}<button type="button" class="btn" data-reset="${id}">${esc(t('reset'))}</button>${extra}</div></div>`;
+}
+
+/* --- Lab: Styles + numbering + TOC --- */
+const ST_SAMPLE = [
+  ['บทนำ', 'Introduction', 'h1'],
+  ['ความเป็นมาและความสำคัญของปัญหา', 'Background and significance', 'h2'],
+  ['พื้นที่สีเขียวในเมืองช่วยลดอุณหภูมิและเป็นที่พักผ่อนของผู้คน แต่กรุงเทพมหานครยังขาดข้อมูลเชิงปริมาณ', 'Urban green space cools cities and gives people places to rest, yet Bangkok lacks quantitative data on it.', 'normal'],
+  ['วัตถุประสงค์ของการวิจัย', 'Research objectives', 'h2'],
+  ['เพื่อประเมินบริการระบบนิเวศของสวนสาธารณะ 3 แห่ง', 'To assess the ecosystem services of three public parks.', 'normal'],
+  ['ทบทวนวรรณกรรม', 'Literature review', 'h1'],
+  ['แนวคิดบริการระบบนิเวศ', 'The ecosystem services concept', 'h2'],
+  ['การประเมินมูลค่าบริการระบบนิเวศ', 'Valuing ecosystem services', 'h3'],
+  ['งานวิจัยที่ผ่านมาใช้ทั้งการประเมินมูลค่าทางตรงและทางอ้อม', 'Earlier studies used both direct and indirect valuation methods.', 'normal'],
+  ['วิธีการศึกษา', 'Methods', 'h1'],
+  ['พื้นที่ศึกษา', 'Study area', 'h2'],
+  ['การเก็บข้อมูลภาคสนาม', 'Field data collection', 'h2'],
+  ['วางแปลงตัวอย่างขนาด 20 × 20 เมตร จำนวน 12 แปลง', 'Twelve 20 × 20 m sample plots were laid out.', 'normal'],
+  ['ประโยชน์ที่คาดว่าจะได้รับ', 'Expected benefits', 'h1']
+];
+function stInit() { S.st = { paras: ST_SAMPLE.map((p, i) => ({ id: i, th: p[0], en: p[1], target: p[2], style: p[2] === 'normal' ? 'normal' : 'fake' })), sel: 0, num: false, toc: null }; }
+stInit();
+const lvl = s => ({ h1: 1, h2: 2, h3: 3 })[s] || 0;
+function stNums() {
+  const c = [0, 0, 0], m = {};
+  S.st.paras.forEach(p => { const l = lvl(p.style); if (!l) return; c[l - 1]++; for (let k = l; k < 3; k++) c[k] = 0; m[p.id] = c.slice(0, l).join('.'); });
+  return m;
+}
+function stHeads() { const nums = stNums(); return S.st.paras.map((p, i) => ({ p, i })).filter(x => lvl(x.p.style)).map(x => ({ id: x.p.id, l: lvl(x.p.style), n: S.st.num ? nums[x.p.id] : '', pg: 2 + Math.floor(x.i / 4) })); }
+function stMove(id, dir) {
+  const P = S.st.paras; const i = P.findIndex(p => p.id === id); const l = lvl(P[i].style);
+  const end = k => { let j = k + 1; while (j < P.length && !(lvl(P[j].style) && lvl(P[j].style) <= lvl(P[k].style))) j++; return j; };
+  if (dir < 0) {
+    let k = i - 1; while (k >= 0 && !(lvl(P[k].style) && lvl(P[k].style) <= l)) k--;
+    if (k < 0 || lvl(P[k].style) < l) return;
+    const a = P.slice(k, i), b = P.slice(i, end(i)); P.splice(k, a.length + b.length, ...b, ...a);
+  } else {
+    const e = end(i); if (e >= P.length || lvl(P[e].style) !== l) return;
+    const a = P.slice(i, e), b = P.slice(e, end(e)); P.splice(i, a.length + b.length, ...b, ...a);
+  }
+}
+const STYLEBTNS = [['normal', 'Normal', ['Ctrl+Shift+N', 'Cmd+Shift+N']], ['h1', 'Heading 1', ['Ctrl+Alt+1', 'Cmd+Opt+1']], ['h2', 'Heading 2', ['Ctrl+Alt+2', 'Cmd+Opt+2']], ['h3', 'Heading 3', ['Ctrl+Alt+3', 'Cmd+Opt+3']]];
+function labStyles() {
+  const st = S.st, nums = stNums(), heads = stHeads();
+  const stale = !!st.toc && JSON.stringify(st.toc) !== JSON.stringify(heads);
+  const correct = st.paras.filter(p => p.style === p.target).length;
+  const ok = correct === st.paras.length && st.num && !!st.toc && !stale;
+  const selP = st.paras[st.sel];
+  const txt = p => esc(S.lang === 'th' ? p.th : p.en);
+  const tagName = s => ({ normal: 'Normal', fake: 'Normal + Bold 18pt', h1: 'Heading 1', h2: 'Heading 2', h3: 'Heading 3' })[s];
+  const tocHTML = st.toc ? `<div class="toc ${stale ? 'stale' : ''}"><div class="t">${TT('สารบัญ', 'Contents')}</div>${st.toc.map(h => { const p = st.paras.find(x => x.id === h.id); return `<div class="e l${h.l}"><span>${h.n ? h.n + ' ' : ''}${p ? txt(p) : ''}</span><span class="dots"></span><span>${h.pg}</span></div>`; }).join('')}
+    ${stale ? `<div class="small" style="color:var(--warn);margin-top:6px">${TT('สารบัญยังเป็นข้อมูลเก่า คลิก Update Table หรือกด F9', 'The contents are out of date. Click Update Table or press F9.')}</div>` : ''}</div>` : '';
+  keepFocus('stDoc', () => {
+    $('#labArea').innerHTML = labHead('styles', ok) + `
+    <div class="task"><b>${esc(t('task'))}:</b> ${TT(
+      'หัวข้อในไฟล์นี้ทำแบบ “ตัวหนาขนาดใหญ่” (หัวข้อปลอม) จึงไม่โผล่ใน Navigation Pane · 1) คลิกหัวข้อแล้วใส่ Heading ให้ถูกระดับ: ชื่อบท (บทนำ ทบทวนวรรณกรรม วิธีการศึกษา ประโยชน์ฯ) = Heading 1, หัวข้อย่อย = Heading 2, “การประเมินมูลค่าฯ” = Heading 3 · 2) เปิดเลขหัวข้อ Multilevel · 3) แทรกสารบัญ แล้วลองย้ายหัวข้อใน Navigation Pane แล้วอัปเดตด้วย F9',
+      'Headings in this file are “big bold text” (fake headings), so the Navigation Pane can’t see them · 1) Click each heading and apply the right level: chapter titles (Introduction, Literature review, Methods, Expected benefits) = Heading 1, sub-sections = Heading 2, “Valuing ecosystem services” = Heading 3 · 2) Turn on multilevel numbering · 3) Insert the contents, move a section in the Navigation Pane, then update with F9')}</div>
+    <div class="toolbar" role="toolbar" aria-label="Styles">
+      ${STYLEBTNS.map(b => `<button type="button" class="stylebtn ${selP && (selP.style === b[0] || (b[0] === 'normal' && selP.style === 'fake' && false)) ? 'on' : ''}" data-style="${b[0]}"><b>${b[1]}</b><small>${esc(K(b[2][0], b[2][1]).replace('Opt', '⌥').replace('Cmd', '⌘'))}</small></button>`).join('')}
+      <span class="sep"></span>
+      <button type="button" class="btn" data-st="num" aria-pressed="${st.num}">1.1 Multilevel List</button>
+      <button type="button" class="btn ${st.toc && stale ? 'primary' : ''}" data-st="toc">${st.toc ? 'Update Table (F9)' : 'Insert Table of Contents'}</button>
+    </div>
+    <div class="split">
+      <div class="side nav"><h4>Navigation Pane</h4>${heads.length ? heads.map(h => { const p = st.paras.find(x => x.id === h.id); const idx = st.paras.indexOf(p); return `<div class="ni l${h.l} ${idx === st.sel ? 'sel' : ''}" data-sel="${idx}"><span>${h.n ? h.n + ' ' : ''}${txt(p)}</span><button type="button" class="mv" data-mv="${h.id}:-1" aria-label="up">▲</button><button type="button" class="mv" data-mv="${h.id}:1" aria-label="down">▼</button></div>`; }).join('') : `<p class="empty">${TT('ยังไม่มีหัวข้อ — หัวข้อปลอมจะไม่แสดงตรงนี้', 'No headings yet — fake headings never show here')}</p>`}
+        <p class="note" style="margin-top:8px">${TT('▲▼ ย้ายหัวข้อพร้อมเนื้อหาข้างใต้ เหมือนลากใน Word', '▲▼ move a heading with everything under it, like dragging in Word')}</p></div>
+      <div class="doc" id="stDoc" tabindex="0" aria-label="document">
+        ${tocHTML}
+        ${st.paras.map((p, i) => `<div class="p ${p.style} ${i === st.sel ? 'sel' : ''}" data-sel="${i}"><span class="tagS">${tagName(p.style)}</span>${st.num && nums[p.id] ? `<span class="num">${nums[p.id]}</span>` : ''}${txt(p)}</div>`).join('')}
+      </div>
+    </div>
+    <p class="note">${TT('ถูกต้อง', 'Correct')} ${correct}/${st.paras.length} · ${TT('คลิกในเอกสารแล้วใช้ ↑ ↓ เลือกย่อหน้า และกดแป้นลัด Style ได้จริง', 'Click in the document, use ↑ ↓ to pick a paragraph, and the real style shortcuts work')} (${keysHTML(K('Ctrl+Alt+1', 'Cmd+Opt+1'))}, F9)</p>`;
+  });
+}
+function stApply(style) { const p = S.st.paras[S.st.sel]; if (p) { p.style = style; rerenderLab(); } }
+function stKey(e) {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); S.st.sel = Math.max(0, Math.min(S.st.paras.length - 1, S.st.sel + (e.key === 'ArrowDown' ? 1 : -1))); rerenderLab(); return; }
+  if (e.key === 'F9') { e.preventDefault(); if (S.st.toc) { S.st.toc = stHeads(); rerenderLab(); } return; }
+  for (const b of STYLEBTNS) { if (matches(e, K(b[2][0], b[2][1]))) { e.preventDefault(); stApply(b[0]); return; } }
+}
+
+/* --- Lab: Captions + cross references --- */
+function capInit() {
+  S.cap = { blocks: [
+    { k: 'text', id: 'x1', th: 'บทนี้อธิบายพื้นที่ศึกษา ({f1}) และจำนวนแปลงจำแนกตามภูมิภาคใน{t1}', en: 'This chapter describes the study area ({f1}) and the plots by region in {t1}.' },
+    { k: 'fig', id: 'f1', th: 'พื้นที่ศึกษา', en: 'Study area', bm: '_Ref212712131' },
+    { k: 'tab', id: 't1', th: 'พื้นที่ศึกษาจำแนกตามภูมิภาค', en: 'Study sites by region', bm: '_Ref212713457' },
+    { k: 'fig', id: 'f2', th: 'ขั้นตอนการทำงาน', en: 'Workflow', bm: '_Ref212712134' },
+    { k: 'text', id: 'x2', th: 'ขั้นตอนทั้งหมดสรุปไว้ใน{f2} ส่วนตำแหน่งแปลงตัวอย่างดูได้จาก{f1}', en: 'The workflow is summarised in {f2}; plot locations are in {f1}.' }
+  ], sel: 'f2', codes: false, cache: {}, n: 0, changed: false };
+  capUpdate(); S.cap.changed = false;
+}
+const capLabel = k => (k === 'fig' ? TT('ภาพที่', 'Figure') : TT('ตารางที่', 'Table'));
+function capLive(id) { const B = S.cap.blocks; const b = B.find(x => x.id === id); if (!b) return null; return B.filter(x => x.k === b.k).indexOf(b) + 1; }
+function capRefs() { const out = []; S.cap.blocks.forEach(b => { if (b.k !== 'text') return; let n = 0; (b.th.match(/\{(\w+)\}/g) || []).forEach(m => { out.push({ key: b.id + ':' + (n++), target: m.slice(1, -1) }); }); }); return out; }
+function capUpdate() {
+  const C = S.cap.cache;
+  S.cap.blocks.forEach(b => { if (b.k !== 'text') C[b.id] = capLive(b.id); });
+  capRefs().forEach(r => { const b = S.cap.blocks.find(x => x.id === r.target); C[r.key] = b ? { k: b.k, n: capLive(b.id) } : 'ERR'; });
+}
+function capStaleCount() {
+  let n = 0; const C = S.cap.cache;
+  S.cap.blocks.forEach(b => { if (b.k !== 'text' && C[b.id] !== capLive(b.id)) n++; });
+  capRefs().forEach(r => { const b = S.cap.blocks.find(x => x.id === r.target); const c = C[r.key]; if (!b) { if (c !== 'ERR') n++; } else if (!c || c === 'ERR' || c.n !== capLive(b.id)) n++; });
+  return n;
+}
+capInit();
+function labCaptions() {
+  const cp = S.cap, C = cp.cache; const stale = capStaleCount();
+  const errs = capRefs().filter(r => C[r.key] === 'ERR').length;
+  const ok = cp.changed && stale === 0 && errs === 0;
+  const sel = cp.blocks.find(b => b.id === cp.sel);
+  const capHTML = b => {
+    const live = capLive(b.id), c = C[b.id]; const st = c !== live;
+    const num = cp.codes ? `<span class="fld code">{ SEQ ${esc(capLabel(b.k))} \\* ARABIC }</span>` : `<span class="fld ${st ? 'stale' : ''}">${c}</span>`;
+    return `<div class="cap"><b>${esc(capLabel(b.k))} ${num}</b> ${esc(S.lang === 'th' ? b.th : b.en)}</div>`;
+  };
+  const textHTML = b => {
+    let n = 0; const src = S.lang === 'th' ? b.th : b.en;
+    return esc(src).replace(/\{(\w+)\}/g, (m, id) => {
+      const key = b.id + ':' + (n++); const c = C[key]; const tb = cp.blocks.find(x => x.id === id);
+      if (cp.codes) return `<span class="fld code">{ REF ${tb ? tb.bm : '_Ref000000000'} \\h }</span>`;
+      if (c === 'ERR') return `<span class="fld err">${TT('ข้อผิดพลาด! ไม่พบแหล่งการอ้างอิง', 'Error! Reference source not found.')}</span>`;
+      const st = !tb || !c || c.n !== capLive(tb.id);
+      return `<span class="fld ${st ? 'stale' : ''}">${esc(capLabel(c.k))} ${c.n}</span>`;
+    });
+  };
+  const blockHTML = b => {
+    const cls = `blk ${b.id === cp.sel ? 'sel' : ''}`;
+    if (b.k === 'text') return `<div class="${cls}" data-cb="${b.id}">${textHTML(b)}</div>`;
+    if (b.k === 'fig') return `<div class="${cls} fig" data-cb="${b.id}"><div class="figbox">${esc(S.lang === 'th' ? b.th : b.en)}</div>${capHTML(b)}</div>`;
+    return `<div class="${cls}" data-cb="${b.id}">${capHTML(b)}<table class="mini"><tr><th>${TT('ภูมิภาค', 'Region')}</th><th>${TT('จำนวนแปลง', 'Plots')}</th></tr><tr><td>${TT('ภาคกลาง', 'Central')}</td><td>6</td></tr><tr><td>${TT('ภาคเหนือ', 'North')}</td><td>6</td></tr></table></div>`;
+  };
+  keepFocus('capDoc', () => {
+    $('#labArea').innerHTML = labHead('captions', ok) + `
+    <div class="task"><b>${esc(t('task'))}:</b> ${TT(
+      'คลิกเลือกภาพ แล้วกด “ย้ายขึ้น” หรือแทรกภาพใหม่ สังเกตว่าเลขภาพและข้อความที่อ้างถึง (field สีเทา) ยังไม่เปลี่ยน จนกว่าจะกด Update Fields (F9) ลองลบภาพที่ถูกอ้างถึงแล้วกด F9 เพื่อดูข้อความ Error · ทำให้เอกสารไม่มี field ค้างและไม่มี Error',
+      'Select a figure and press “Move up”, or insert a new one. The figure numbers and the text that mentions them (grey fields) don’t change until you Update Fields (F9). Try deleting a referenced figure and pressing F9 to see the error · Finish with no stale fields and no errors')}</div>
+    <div class="toolbar">
+      <button type="button" class="btn" data-cap="ins-fig">+ ${TT('ภาพ + Caption', 'Figure + caption')}</button>
+      <button type="button" class="btn" data-cap="ins-tab">+ ${TT('ตาราง + Caption', 'Table + caption')}</button>
+      <span class="sep"></span>
+      <button type="button" class="btn" data-cap="up" ${!sel ? 'disabled' : ''}>▲ ${TT('ย้ายขึ้น', 'Move up')}</button>
+      <button type="button" class="btn" data-cap="down" ${!sel ? 'disabled' : ''}>▼ ${TT('ย้ายลง', 'Move down')}</button>
+      <button type="button" class="btn" data-cap="del" ${!sel || sel.k === 'text' ? 'disabled' : ''}>✕ ${TT('ลบ', 'Delete')}</button>
+      <span class="sep"></span>
+      <button type="button" class="btn ${stale ? 'primary' : ''}" data-cap="upd">Update Fields · F9</button>
+      <button type="button" class="btn" data-cap="codes" aria-pressed="${cp.codes}">Field codes · ${keysHTML(K('Alt+F9', 'Opt+F9'))}</button>
+    </div>
+    <div class="split r">
+      <div class="doc" id="capDoc" tabindex="0">${cp.blocks.map(blockHTML).join('')}</div>
+      <div class="side"><h4>${TT('สถานะ field', 'Field status')}</h4>
+        <p class="small">${stale ? `<span style="color:var(--warn);font-weight:700">${stale} ${TT('field ยังไม่อัปเดต', 'stale field(s)')}</span>` : TT('ทุก field เป็นปัจจุบัน', 'All fields are current')}</p>
+        ${errs ? `<p class="small" style="color:var(--del);font-weight:700;margin-top:4px">${errs} Error!</p>` : ''}
+        <h4 style="margin-top:14px">${TT('หลักการตั้งชื่อ', 'Caption rules')}</h4>
+        <ul class="small" style="margin:0;padding-left:1.1em;display:grid;gap:4px">
+          <li>${TT('ภาพ: ชื่อไว้ใต้ภาพ / ตาราง: ชื่อไว้เหนือตาราง', 'Figures: caption below · Tables: caption above')}</li>
+          <li>${TT('ไม่ต้องมีคำว่า “แสดง” ตั้งชื่อให้สื่อความหมาย', 'No “showing…”; give a meaningful title')}</li>
+          <li>${TT('สร้าง Label ไทย: Insert Caption › New Label… “ภาพที่”', 'Thai labels: Insert Caption › New Label… “ภาพที่”')}</li>
+          <li>${TT('อ้างอิงข้าม: Cross-reference › Only label and number', 'Cross-reference › Only label and number')}</li>
+          <li>${TT('ก่อนส่งงาน: เลือกทั้งหมดแล้วกด F9', 'Before sending: select all, press F9')} (${keysHTML(K('Ctrl+A', 'Cmd+A'))})</li>
+        </ul></div>
+    </div>`;
+  });
+}
+function capAct(a) {
+  const cp = S.cap, B = cp.blocks; const i = B.findIndex(b => b.id === cp.sel);
+  if (a === 'ins-fig' || a === 'ins-tab') {
+    cp.n++; const k = a === 'ins-fig' ? 'fig' : 'tab';
+    const nb = { k, id: 'n' + cp.n, th: (k === 'fig' ? 'ภาพใหม่ ' : 'ตารางใหม่ ') + cp.n, en: (k === 'fig' ? 'New figure ' : 'New table ') + cp.n, bm: '_Ref2127135' + (10 + cp.n) };
+    B.splice(i < 0 ? 0 : i, 0, nb); cp.cache[nb.id] = capLive(nb.id); cp.sel = nb.id; cp.changed = true;
+  } else if (a === 'up' && i > 0) { [B[i - 1], B[i]] = [B[i], B[i - 1]]; cp.changed = true; }
+  else if (a === 'down' && i >= 0 && i < B.length - 1) { [B[i + 1], B[i]] = [B[i], B[i + 1]]; cp.changed = true; }
+  else if (a === 'del' && i >= 0 && B[i].k !== 'text') { B.splice(i, 1); cp.sel = (B[i] || B[i - 1] || {}).id; cp.changed = true; }
+  else if (a === 'upd') capUpdate();
+  else if (a === 'codes') cp.codes = !cp.codes;
+  rerenderLab();
+}
+function capKey(e) {
+  if (e.key === 'F9' && !e.altKey && !e.shiftKey) { e.preventDefault(); capAct('upd'); return; }
+  if (matches(e, K('Alt+F9', 'Opt+F9'))) { e.preventDefault(); capAct('codes'); }
+}
+
+/* --- Lab: ¶ marks + Find & Replace --- */
+const MK_SAMPLE = {
+  th: 'บทที่ 1\nบทนำ\n\tพื้นที่สีเขียวในเมืองมีบทบาทสำคัญต่อ  ระบบนเวศ และคุณภาพชีวิตของคนเมือง  การศึกษานี้มุ่งประเมินบริการระบบนเวศของสวนสาธารณะในกรุงเทพมหานคร\n\n\n\nวัตถุประสงค์\n1.\tเพื่อประเมินบริการระบบนเวศของพื้นที่สีเขียว\v2.\tเพื่อเปรียบเทียบสวนสาธารณะ  3 แห่ง\n\fบทที่ 2',
+  en: 'Chapter 1\nIntroduction\n\tUrban green space plays a key role in  ecosytem health and city life.  This study assesses the ecosytem services of public parks in Bangkok.\n\n\n\nObjectives\n1.\tTo assess the ecosytem services of green space\v2.\tTo compare  three parks\n\fChapter 2'
+};
+function mkInit() { S.mk = { text: MK_SAMPLE[S.lang], lang: S.lang, show: true, find: '', repl: '', cs: false, undo: [], msg: '', lastF: 'mkFind' }; }
+mkInit();
+const mkSpecial = s => s.replace(/\^\^/g, '\u0000').replace(/\^p/g, '\n').replace(/\^t/g, '\t').replace(/\^l/g, '\v').replace(/\^m/g, '\f').replace(/\u0000/g, '^');
+function mkRanges(text, find, cs) {
+  const f = mkSpecial(find); if (!f) return [];
+  const a = cs ? text : text.toLowerCase(), b = cs ? f : f.toLowerCase(); const out = []; let i = 0;
+  while ((i = a.indexOf(b, i)) !== -1) { out.push([i, i + b.length]); i += b.length; }
+  return out;
+}
+function mkTransform(seg, show) {
+  let o = '';
+  for (const ch of seg) {
+    if (ch === ' ') o += show ? '<span class="mk sp">·</span>' : ' ';
+    else if (ch === '\t') o += `<span class="tabc">${show ? '<span class="mk">→</span>' : ''}</span>`;
+    else if (ch === '\n') o += (show ? '<span class="mk">¶</span>' : '') + '<br>';
+    else if (ch === '\v') o += (show ? '<span class="mk">↵</span>' : '') + '<br>';
+    else if (ch === '\f') o += `<span class="pbreak">${'·'.repeat(8)} Page Break ${'·'.repeat(8)}</span>`;
+    else o += esc(ch);
+  }
+  return o;
+}
+function labMarks() {
+  const m = S.mk; if (m.lang !== S.lang) { const keep = m.show; mkInit(); S.mk.show = keep; }
+  const typo = S.lang === 'th' ? 'ระบบนเวศ' : 'ecosytem';
+  const ch = [
+    [!m.text.includes('  '), TT('ไม่มีเว้นวรรค 2 ครั้งติดกัน (ค้นหา “␣␣” แทนที่ด้วย “␣”)', 'No double spaces (find “␣␣”, replace with “␣”)')],
+    [!m.text.includes(typo), TT(`แก้คำผิด “${typo}” เป็น “ระบบนิเวศ” ทั้งไฟล์`, `Fix the typo “${typo}” → “ecosystem” everywhere`)],
+    [!m.text.includes('\n\n'), TT('ลบย่อหน้าว่างที่กด Enter ซ้อน (ค้นหา ^p^p แทนที่ด้วย ^p · อาจต้องกดซ้ำ)', 'Remove stacked empty Enters (find ^p^p, replace with ^p · may need repeating)')]
+  ];
+  const ok = ch.every(c => c[0]);
+  const ranges = mkRanges(m.text, m.find, m.cs);
+  let html = '', p = 0; ranges.forEach(([a, b]) => { html += mkTransform(m.text.slice(p, a), m.show) + '<span class="hl">' + mkTransform(m.text.slice(a, b), m.show) + '</span>'; p = b; });
+  html += mkTransform(m.text.slice(p), m.show) + (m.show ? '<span class="mk">¶</span>' : '');
+  keepFocus('mkDoc', () => {
+    $('#labArea').innerHTML = labHead('marks', ok) + `
+    <div class="task"><b>${esc(t('task'))}:</b> ${TT('เปิด ¶ เพื่อดูอักขระที่ซ่อนอยู่ แล้วใช้ Find & Replace แก้ทั้ง 3 ข้อด้านขวา', 'Turn on ¶ to see hidden characters, then use Find & Replace to clear all three checks on the right')}</div>
+    <div class="toolbar">
+      <button type="button" class="btn" data-mk="show" aria-pressed="${m.show}">¶ Show/Hide ${keysHTML(K('Ctrl+Shift+8', ''))}</button>
+      <button type="button" class="btn" data-mk="undo" ${m.undo.length ? '' : 'disabled'}>↶ Undo</button>
+      <span class="note">· ${TT('ช่องว่าง', 'space')} <span class="mk">·</span> · Tab <span class="mk">→</span> · Enter <span class="mk">¶</span> · ${TT('ขึ้นบรรทัด', 'line break')} (${keysHTML(K('Shift+Enter', 'Shift+Return'))}) <span class="mk">↵</span></span>
+    </div>
+    <div class="split r">
+      <div class="doc" id="mkDoc" tabindex="0" style="white-space:pre-wrap">${html}</div>
+      <div class="side frbox">
+        <h4>Find & Replace · ${keysHTML(K('Ctrl+H', 'Ctrl+H'))}</h4>
+        <label>Find what<input type="text" id="mkFind" value="${esc(m.find)}" autocomplete="off"></label>
+        <label>Replace with<input type="text" id="mkRepl" value="${esc(m.repl)}" autocomplete="off"></label>
+        <div class="specials" aria-label="Special">${['^p', '^t', '^l', '^m'].map(s => `<button type="button" data-sp="${s}" title="${({ '^p': 'Paragraph mark', '^t': 'Tab', '^l': 'Manual line break', '^m': 'Manual page break' })[s]}">${s}</button>`).join('')}<span class="note">Special</span></div>
+        ${S.lang === 'en' ? `<label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="mkCase" ${m.cs ? 'checked' : ''}> Match case</label>` : ''}
+        <div class="row"><button type="button" class="btn primary" data-mk="all">Replace All</button><span class="small muted">${ranges.length} ${TT('รายการที่พบ', 'found')}</span></div>
+        ${m.msg ? `<p class="small" style="font-weight:700">${esc(m.msg)}</p>` : ''}
+        <div class="chal">${ch.map(c => `<div><span class="ck ${c[0] ? 'ok' : ''}">${c[0] ? '✓' : ''}</span><span>${c[1]}</span></div>`).join('')}</div>
+      </div>
+    </div>`;
+  });
+}
+function mkReplaceAll() {
+  const m = S.mk; const f = mkSpecial(m.find); if (!f) return;
+  const r = mkSpecial(m.repl); const rg = mkRanges(m.text, m.find, m.cs);
+  if (!rg.length) { m.msg = TT('ไม่พบข้อความที่ค้นหา', 'Nothing found'); rerenderLab(); return; }
+  m.undo.push(m.text); let out = '', p = 0; rg.forEach(([a, b]) => { out += m.text.slice(p, a) + r; p = b; }); out += m.text.slice(p);
+  m.text = out; m.msg = TT(`แทนที่แล้ว ${rg.length} รายการ`, `${rg.length} replacement(s) made`); rerenderLab();
+}
+
+/* --- Lab: Hanging indent --- */
+const REFS = {
+  th: ['พาสินี สุนากร. 2553. การใช้พืชพรรณประกอบอาคาร เพื่อมนุษย์และสภาพแวดล้อม. วารสารธนาคารอาคารสงเคราะห์ 16 (มกราคม-มีนาคม): 58-64.',
+    'สร้อยสุข พงษ์พูล. 2555. แนวทางการเพิ่มพื้นที่สีเขียวในกรุงเทพมหานคร. [ออนไลน์]. แหล่งที่มา http://www.bma-cpd.go.th/files/admin/greenareacriteria.pdf [2555, มีนาคม 5]',
+    'เดชา บุญค้ำ. 2553. หลังคาเขียวกับภาวะโลกร้อน. วารสารสำนักสิ่งแวดล้อม กรุงเทพมหานคร 13 (มกราคม-เมษายน): 2-3.',
+    'สำนักสิ่งแวดล้อม กรุงเทพมหานคร. 2552. การปล่อยก๊าซเรือนกระจก ข้อมูลพื้นฐานและการพยากรณ์. ใน กรุงเทพฯ รายงานการประเมินกรุงเทพมหานครว่าด้วยการเปลี่ยนแปลงภูมิอากาศ พ.ศ.2552, 36-46. กรุงเทพฯ: สำนักสิ่งแวดล้อมกรุงเทพมหานคร.'],
+  en: ['Bolund, P., & Hunhammar, S. (1999). Ecosystem services in urban areas. Ecological Economics, 29(2), 293–301.',
+    'Costanza, R., d’Arge, R., de Groot, R., Farber, S., Grasso, M., Hannon, B., Limburg, K., Naeem, S., O’Neill, R. V., Paruelo, J., Raskin, R. G., Sutton, P., & van den Belt, M. (1997). The value of the world’s ecosystem services and natural capital. Nature, 387(6630), 253–260.',
+    'Millennium Ecosystem Assessment. (2005). Ecosystems and human well-being: Synthesis. Island Press.']
+};
+S.ind = { fx: 0, ox: 0, size: 16, hard: false };
+const RW = 15; /* ruler width in cm */
+function rulerHTML(id, inner) {
+  let tk = '';
+  for (let c = 0; c <= RW * 4; c++) { const x = (c / 4 / RW) * 100; const h = c % 4 === 0 ? 9 : c % 2 === 0 ? 6 : 3; tk += `<span class="tk" style="left:${x}%;height:${h}px"></span>`; if (c % 4 === 0 && c > 0 && c < RW * 4) tk += `<span class="nm" style="left:${x}%">${c / 4}</span>`; }
+  return `<div class="ruler" id="${id}">${tk}${inner}</div>`;
+}
+function hardBreak(s, n) { const out = []; let line = ''; for (const w of s.split(' ')) { if ((line + ' ' + w).length > n && line) { out.push(line); line = w; } else line = line ? line + ' ' + w : w; } out.push(line); return out.join('\n      '); }
+function labIndent() {
+  const d = S.ind; const refs = REFS[S.lang];
+  $('#labArea').innerHTML = labHead('indent', !!S.done.indent) + `
+    <div class="task"><b>${esc(t('task'))}:</b> ${TT('จัดรายการเอกสารอ้างอิงให้บรรทัดแรกชิดซ้าย (0 cm) และบรรทัดถัดไปเยื้อง 1.27 cm (0.5 นิ้ว) ด้วย Hanging indent · ลากตัวเยื้องบนไม้บรรทัด ใช้ปุ่ม หรือตั้งค่าในกล่อง Paragraph · แล้วลองเปิด “แบบผิด” และเปลี่ยนขนาดฟอนต์เพื่อดูว่าทำไมห้ามใช้ Spacebar/Enter',
+      'Make each reference start at 0 cm with following lines indented 1.27 cm (0.5 in) using a hanging indent · drag the markers on the ruler, use the buttons, or set the Paragraph box · then try the “wrong way” and change the font size to see why Spacebar/Enter fails')}</div>
+    <div class="split r">
+      <div style="display:grid;gap:8px;min-width:0">
+        ${rulerHTML('indRuler', `<span class="mkr" data-drag="fx" style="top:0" title="First Line Indent">▼</span><span class="mkr" data-drag="ox" style="bottom:0" title="Hanging Indent">▲</span>`)}
+        <div class="doc refs ${d.hard ? 'hard' : ''}" id="indRefs" style="padding:16px 0;box-shadow:none;border:0;background:transparent">
+          <p style="font:700 1.05rem var(--f-display);margin-bottom:8px;padding:0;text-indent:0">${TT('เอกสารอ้างอิง', 'References')}</p>
+          ${refs.map(r => `<p class="ref">${esc(d.hard ? hardBreak(r, S.lang === 'th' ? 62 : 70) : r)}</p>`).join('')}
+        </div>
+      </div>
+      <div class="side" style="display:grid;gap:10px;align-content:start">
+        <h4>Paragraph › Indentation</h4>
+        <div class="ctl">
+          <label for="indLeft">Left</label><input type="range" id="indLeft" min="0" max="3" step="0.01"><output id="oLeft"></output>
+          <label for="indSpec">Special</label><select id="indSpec" style="grid-column:span 2"><option value="none">(none)</option><option value="first">First line</option><option value="hanging">Hanging</option></select>
+          <label for="indBy">By</label><input type="range" id="indBy" min="0" max="3" step="0.01"><output id="oBy"></output>
+          <label for="indSize">${TT('ขนาดฟอนต์', 'Font size')}</label><input type="range" id="indSize" min="13" max="21" step="1" value="${d.size}"><output id="oSize"></output>
+        </div>
+        <div class="row"><button type="button" class="btn" data-ind="t">${keysHTML(K('Ctrl+T', 'Cmd+T'))}</button><button type="button" class="btn" data-ind="st">${keysHTML(K('Ctrl+Shift+T', 'Cmd+Shift+T'))}</button></div>
+        <p class="note">${TT('ปุ่มจำลองแป้นลัด Hanging indent (เบราว์เซอร์ใช้ ' + K('Ctrl+T', 'Cmd+T') + ' เปิดแท็บใหม่ จึงกดจริงในหน้านี้ไม่ได้)', 'These buttons simulate the hanging-indent shortcuts (the browser uses ' + K('Ctrl+T', 'Cmd+T') + ' for a new tab, so the real keys can’t be caught here)')}</p>
+        <label style="display:flex;gap:8px;align-items:center;font-size:.9rem"><input type="checkbox" id="indHard" ${d.hard ? 'checked' : ''}> ${TT('แบบผิด: กด Enter + เคาะ Spacebar', 'Wrong way: Enter + spaces')}</label>
+        <p class="note">${TT('APA ใช้ Hanging 0.5 นิ้ว (1.27 cm) ตรวจรูปแบบที่คณะกำหนดอีกครั้ง', 'APA uses a 0.5 in (1.27 cm) hanging indent. Check your faculty’s format.')}</p>
+      </div>
+    </div>`;
+  bindRulerDrag('indRuler', (key, cm) => { S.ind[key] = Math.round(cm * 20) / 20; indPaint(); });
+  indPaint();
+}
+function indPaint() {
+  const d = S.ind; const refs = $('#indRefs'); if (!refs) return;
+  const hanging = d.ox > d.fx + 0.01, first = d.fx > d.ox + 0.01;
+  const left = hanging ? d.fx : d.ox; const by = Math.abs(d.ox - d.fx);
+  const ok = !d.hard && hanging && Math.abs(by - 1.27) < 0.07 && Math.abs(d.fx) < 0.07;
+  refs.style.setProperty('--fs', d.size + 'px');
+  refs.style.setProperty('--pl', d.hard ? '0%' : (d.ox / RW * 100) + '%');
+  refs.style.setProperty('--ti', d.hard ? '0%' : ((d.fx - d.ox) / RW * 100) + '%');
+  const fx = $('#indRuler [data-drag="fx"]'), ox = $('#indRuler [data-drag="ox"]');
+  if (fx) fx.style.left = (d.fx / RW * 100) + '%'; if (ox) ox.style.left = (d.ox / RW * 100) + '%';
+  const set = (id, v) => { const el = $('#' + id); if (el && document.activeElement !== el) el.value = v; };
+  set('indLeft', left); set('indBy', by); set('indSpec', hanging ? 'hanging' : first ? 'first' : 'none');
+  const bEl = $('#indBy'); if (bEl) bEl.disabled = !hanging && !first;
+  $('#oLeft').textContent = left.toFixed(2) + ' cm'; $('#oBy').textContent = by.toFixed(2) + ' cm'; $('#oSize').textContent = d.size + 'px';
+  setDone('indent', ok);
+}
+function setDone(id, ok) {
+  const was = !!S.done[id]; S.done[id] = ok;
+  const pill = $('#labArea .labhead .status'); if (pill && S.lab === id) pill.outerHTML = statusPill(ok);
+  if (was !== ok && $('#labNav')) renderLabsNavOnly();
+}
+function indSet(left, spec, by) { if (spec === 'hanging') { S.ind.fx = left; S.ind.ox = left + by; } else if (spec === 'first') { S.ind.ox = left; S.ind.fx = left + by; } else { S.ind.fx = S.ind.ox = left; } }
+function bindRulerDrag(id, onMove, onDrop) {
+  const r = document.getElementById(id); if (!r) return;
+  r.addEventListener('pointerdown', e => {
+    const h = e.target.closest('[data-drag]'); if (!h) return;
+    e.preventDefault(); const key = h.dataset.drag; const rect = r.getBoundingClientRect(); let lastY = e.clientY;
+    const mv = ev => { lastY = ev.clientY; const cm = Math.max(0, Math.min(RW, ((ev.clientX - rect.left) / rect.width) * RW)); h.style.left = (cm / RW * 100) + '%'; h._cm = cm; };
+    const up = () => { window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up); const away = Math.abs(lastY - (rect.top + rect.height / 2)) > 40; if (onDrop && away) onDrop(key); else if (h._cm != null) onMove(key, h._cm); };
+    window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up);
+  });
+}
+
+/* --- Lab: Tab stops --- */
+const TB_LINES = {
+  budget: { th: [['ค่าจ้างผู้ช่วยวิจัย', '3,000.00', 'บาท'], ['ค่าวัสดุ', '300.00', 'บาท'], ['ค่าสารเคมี', '500.00', 'บาท'], ['รวม', '3,800.00', 'บาท', 1]],
+    en: [['Research assistant', '3,000.00', 'baht'], ['Materials', '300.00', 'baht'], ['Chemicals', '500.00', 'baht'], ['Total', '3,800.00', 'baht', 1]] },
+  sign: { th: [['', 'ขอแสดงความนับถือ'], ['', ''], ['', '(อาจารย์ ดร.วิชา โปรเจค)'], ['', 'อาจารย์ที่ปรึกษาวิทยานิพนธ์หลัก']],
+    en: [['', 'Yours sincerely,'], ['', ''], ['', '(Dr. Wicha Project)'], ['', 'Principal thesis advisor']] }
+};
+S.tb = { set: 'budget', stops: { budget: [], sign: [] }, type: 'L', sel: -1, msr: null };
+const TABT = { L: ['⌞', 'Left'], C: ['⊥', 'Center'], R: ['⌟', 'Right'], D: ['⊥.', 'Decimal'] };
+let measureCtx = null;
+function tw(text, font) { if (!measureCtx) measureCtx = document.createElement('canvas').getContext('2d'); measureCtx.font = font; return measureCtx.measureText(text).width; }
+function tbLayout(segs, stops, ppc, font) {
+  const out = []; let x = 0; const sorted = stops.slice().sort((a, b) => a.pos - b.pos); const lastCustom = sorted.length ? sorted[sorted.length - 1].pos : 0;
+  segs.forEach((s, i) => {
+    const w = tw(s, font);
+    if (i === 0) { out.push({ s, left: 0, w }); x = w; return; }
+    let st = sorted.find(t => t.pos * ppc > x + 0.5);
+    if (!st) { let d = Math.max(lastCustom, x / ppc); const p = (Math.floor(d / 1.27 + 1e-6) + 1) * 1.27; st = { pos: p, type: 'L', leader: 'none' }; }
+    const sx = st.pos * ppc; let left = sx;
+    if (st.type === 'C') left = sx - w / 2; else if (st.type === 'R') left = sx - w; else if (st.type === 'D') { const k = s.indexOf('.'); left = k >= 0 ? sx - tw(s.slice(0, k), font) : sx - w; }
+    left = Math.max(left, x);
+    out.push({ s, left, w, from: x, leader: st.leader, anchor: st.type === 'D' && s.includes('.') ? sx : null, stop: st });
+    x = left + w;
+  });
+  return out;
+}
+function labTabs() {
+  const tb = S.tb; const stops = tb.stops[tb.set]; const lines = TB_LINES[tb.set][S.lang];
+  const pct = x => (x / RW) * 100;
+  $('#labArea').innerHTML = labHead('tabs', !!S.done.tabs, '') + `
+    <div class="task"><b>${esc(t('task'))}:</b> ${tb.set === 'budget'
+      ? TT('ตัวเลขงบประมาณยังไม่ตรงกันเพราะใช้ Tab ปกติ (ทุก 1.27 cm) · เลือกชนิด Tab ที่ปุ่มมุมซ้ายของไม้บรรทัด (คลิกเพื่อเปลี่ยน) แล้วคลิกบนไม้บรรทัดเพื่อวาง · ให้ตัวเลขชิดจุดทศนิยมตรงกัน และคำว่า “บาท” ตรงกัน · ลาก Tab ออกจากไม้บรรทัดเพื่อลบ', 'The budget numbers don’t line up because default tabs fall every 1.27 cm · pick a tab type with the corner button (click to cycle), then click the ruler to place it · line the numbers up on the decimal point and line up “baht” · drag a tab off the ruler to delete it')
+      : TT('บรรทัดลงชื่อใช้ Tab นำหน้า · วาง Center tab ที่ครึ่งขวาของหน้า (ประมาณ 10–11 cm) ให้ทุกบรรทัดกึ่งกลางตรงกัน แทนการเคาะ Spacebar', 'The signature lines start with a tab · put a Center tab in the right half of the page (about 10–11 cm) so every line centres on the same point, instead of tapping Spacebar')}</div>
+    <div class="toolbar">
+      <div class="seg"><button type="button" data-tbset="budget" aria-pressed="${tb.set === 'budget'}">${TT('งบประมาณ', 'Budget')}</button><button type="button" data-tbset="sign" aria-pressed="${tb.set === 'sign'}">${TT('บรรทัดลงชื่อ', 'Signature')}</button></div>
+      <span class="sep"></span>
+      <label class="small" for="tbLeader">Leader</label>
+      <select id="tbLeader" ${tb.sel < 0 || !stops[tb.sel] ? 'disabled' : ''}><option value="none">(none)</option><option value="dot" ${stops[tb.sel] && stops[tb.sel].leader === 'dot' ? 'selected' : ''}>1 ........</option></select>
+      <button type="button" class="btn" data-tb="clear">${TT('ล้าง Tab ทั้งหมด', 'Clear all tabs')}</button>
+      <span class="note">${TT('ใน Word: ดับเบิลคลิก Tab บนไม้บรรทัด หรือ Paragraph › Tabs…', 'In Word: double-click a tab on the ruler, or Paragraph › Tabs…')}</span>
+    </div>
+    <div style="display:grid;gap:8px;min-width:0">
+      <div class="rulerwrap"><button type="button" class="tabsel" data-tb="type" title="${TABT[tb.type][1]} tab">${TABT[tb.type][0]}</button>
+        <div style="flex:1;min-width:0">${rulerHTML('tbRuler', stops.map((s, i) => `<span class="tab ${i === tb.sel ? 'sel' : ''}" data-drag="${i}" style="left:${pct(s.pos)}%" title="${TABT[s.type][1]} ${s.pos.toFixed(2)} cm">${TABT[s.type][0]}</span>`).join(''))}</div></div>
+      <div style="display:flex;gap:6px"><div style="width:34px;flex:none" class="note" title="${TABT[tb.type][1]}">${TABT[tb.type][1].slice(0, 3)}</div>
+        <div class="doc tabdoc" id="tbDoc" style="flex:1;padding:14px 0;position:relative;box-shadow:none;border-left:0;border-right:0;border-radius:0;min-height:0"></div></div>
+    </div>
+    <p class="note" id="tbMsg"></p>`;
+  bindRulerDrag('tbRuler', (key, cm) => { const s = stops[+key]; if (s) { s.pos = Math.round(cm * 4) / 4; tb.sel = +key; } rerenderLab(); }, key => { stops.splice(+key, 1); tb.sel = -1; rerenderLab(); });
+  $('#tbRuler').addEventListener('click', e => {
+    if (e.target.closest('[data-drag]')) { tb.sel = +e.target.closest('[data-drag]').dataset.drag; rerenderLab(); return; }
+    const rect = e.currentTarget.getBoundingClientRect(); const cm = Math.round(((e.clientX - rect.left) / rect.width) * RW * 4) / 4;
+    if (cm <= 0 || cm >= RW) return; stops.push({ pos: cm, type: tb.type, leader: 'none' }); tb.sel = stops.length - 1; rerenderLab();
+  });
+  tbDraw();
+}
+function tbDraw() {
+  const tb = S.tb, doc = $('#tbDoc'); if (!doc) return; const stops = tb.stops[tb.set]; const lines = TB_LINES[tb.set][S.lang];
+  const ppc = doc.clientWidth / RW; if (!ppc) return;
+  const probe = document.createElement('div'); probe.className = 'line'; doc.appendChild(probe); const cs = getComputedStyle(probe);
+  const font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`; const fontB = `${cs.fontStyle} 700 ${cs.fontSize} ${cs.fontFamily}`; probe.remove();
+  let html = ''; const lay = [];
+  lines.forEach(ln => {
+    const segs = ln.slice(0, tb.set === 'budget' ? 3 : 2); const bold = ln[3];
+    const L2 = tbLayout(segs, stops, ppc, bold ? fontB : font); lay.push(L2);
+    html += `<div class="line ${bold ? 'b' : ''}">` + L2.map((p, i) => {
+      let lead = ''; if (i > 0 && p.leader === 'dot' && p.left - p.from > 8) lead = `<span class="leader" style="left:${p.from + 3}px;width:${p.left - p.from - 6}px">${'.'.repeat(200)}</span>`;
+      return lead + `<span class="tseg" style="left:${p.left}px">${esc(p.s)}</span>`;
+    }).join('') + '</div>';
+  });
+  html += stops.map(s => `<span class="guide" style="left:${s.pos * ppc}px"></span>`).join('');
+  doc.innerHTML = html;
+  let ok = false, msg = '';
+  if (tb.set === 'budget') {
+    const anc = lay.map((L2, i) => { const p = L2[1]; const k = p.s.indexOf('.'); return p.left + tw(p.s.slice(0, k), lines[i][3] ? fontB : font); });
+    const baht = lay.map(L2 => L2[2].left);
+    const a1 = Math.max(...anc) - Math.min(...anc) < 1.5, a2 = Math.max(...baht) - Math.min(...baht) < 1.5;
+    ok = a1 && a2; msg = (a1 ? '✓ ' : '○ ') + TT('ตัวเลขตรงจุดทศนิยม', 'numbers aligned on the decimal') + ' · ' + (a2 ? '✓ ' : '○ ') + TT('“บาท” ตรงกัน', '“baht” aligned');
+  } else {
+    const L3 = lay.filter((L2, i) => lines[i][1]); const cen = L3.map(L2 => L2[1].left + L2[1].w / 2); const st = L3[0][1].stop;
+    const a1 = Math.max(...cen) - Math.min(...cen) < 1.5, a2 = st && stops.includes(st) && st.pos >= 7;
+    ok = a1 && a2; msg = (a1 ? '✓ ' : '○ ') + TT('ทุกบรรทัดกึ่งกลางตรงกัน', 'all lines share one centre') + ' · ' + (a2 ? '✓ ' : '○ ') + TT('อยู่ครึ่งขวาของหน้า', 'in the right half of the page');
+  }
+  $('#tbMsg').textContent = msg;
+  setDone('tabs', ok);
+}
+function renderLabsNavOnly() { $('#labNav').innerHTML = LABS.map(l => `<button type="button" data-lab="${l.id}" aria-pressed="${l.id === S.lab}"><span class="ic">${esc(l.ic)}</span><span style="min-width:0"><b>${esc(tr(l.n))}</b><span>${esc(tr(l.s))}</span></span>${S.done[l.id] ? `<span class="okdot">✓</span>` : ''}</button>`).join(''); }
+
+/* --- Lab: Table across pages --- */
+const TBL_ROWS = [['10-Aug-2021', '9.00–10.00', 'Introduction', ''], ['12-Aug-2021', '9.00–10.00', 'Public Holiday', ''], ['17-Aug-2021', '9.00–10.00', 'Chemistry of Life 1', ''], ['19-Aug-2021', '9.00–10.00', 'Chemistry of Life 2', ''], ['24-Aug-2021', '9.00–10.00', 'Chemistry of Life 4', ''], ['26-Aug-2021', '10.00–11.00', 'Cell and Animal Tissue 1', ''], ['31-Aug-2021', '9.00–10.00', 'Cell & Animal Tissue 2', ''],
+  ['7-Sep-2021', '9.00–10.00', 'Cellular Respiration', ''], ['9-Sep-2021', '10.00–11.00', 'Cell Division (Mitosis vs. Meiosis)', ''], ['14-Sep-2021', '9.00–10.00', 'Animal Reproduction & Development 1', ''], ['21-Sep-2021', '9.00–10.00', 'Genetics & Biotechnology 1', ''], ['2-Dec-2021', '9.00–10.00', 'Biology & Society', 'Pongchai D.']];
+const TBL_HEAD = ['Gen Biol Lecture', 'Time', 'For B.Sc. Biotech Program', 'Instructor'];
+S.tbl = { rep: false, pad: 0.19, ind: 0 };
+function labTable() {
+  const d = S.tbl; const ok = d.rep && d.pad <= 0.1 + 1e-9;
+  const cell = (v, tag = 'td') => `<${tag}><span class="cell">${esc(v)}</span></${tag}>`;
+  const cols = '<colgroup><col style="width:23%"><col style="width:20%"><col style="width:35%"><col style="width:22%"></colgroup>';
+  const head = rep => `<tr class="${rep ? 'rep' : ''}">${TBL_HEAD.map(h => cell(h, 'th')).join('')}</tr>`;
+  const body = rows => rows.map(r => `<tr>${r.map(c => cell(c)).join('')}</tr>`).join('');
+  $('#labArea').innerHTML = labHead('table', ok) + `
+    <div class="task"><b>${esc(t('task'))}:</b> ${TT('ตารางจากไฟล์ตัวอย่างยาวข้ามหน้า หน้า 2 ไม่มีหัวตาราง ผู้อ่านไม่รู้ว่าแต่ละคอลัมน์คืออะไร · 1) เปิด Repeat Header Rows 2) ลดระยะขอบในเซลล์ (Cell margins) ซ้าย-ขวาให้เหลือไม่เกิน 0.1 cm เพื่อให้ข้อความพอดีขึ้น (ค่าเริ่มต้นของ Word 0.19 cm)', 'The handout’s table runs onto a second page with no header, so readers lose track of the columns · 1) Turn on Repeat Header Rows 2) Reduce the left/right cell margins to 0.1 cm or less so text fits better (Word’s default is 0.19 cm)')}</div>
+    <div class="split r">
+      <div class="pages" id="tblPages" style="--pad:${d.pad}cm;--ind:${d.ind}cm">
+        <div class="pg"><table class="sched">${cols}${head(false)}${body(TBL_ROWS.slice(0, 7))}</table><div class="pn">— 12 —</div></div>
+        <div class="pg"><table class="sched">${cols}${d.rep ? head(true) : ''}${body(TBL_ROWS.slice(7))}</table><div class="pn">— 13 —</div></div>
+      </div>
+      <div class="side" style="display:grid;gap:10px;align-content:start">
+        <h4>Table Layout</h4>
+        <label style="display:flex;gap:8px;align-items:flex-start;font-size:.92rem"><input type="checkbox" id="tblRep" ${d.rep ? 'checked' : ''} style="margin-top:5px"> <span><b>Repeat Header Rows</b><br><span class="note">${esc(K('Table Layout › Data › Repeat Header Rows', 'Table Layout › Repeat Header Rows'))}</span></span></label>
+        <div class="ctl">
+          <label for="tblPad">Cell margins</label><input type="range" id="tblPad" min="0" max="0.4" step="0.01" value="${d.pad}"><output id="oPad">${d.pad.toFixed(2)} cm</output>
+          <label for="tblInd">Indent</label><input type="range" id="tblInd" min="-0.2" max="0" step="0.01" value="${d.ind}"><output id="oInd">${d.ind.toFixed(2)} cm</output>
+        </div>
+        <p class="note">${esc(K('Table Layout › Alignment › Cell Margins', 'Table Layout › Cell Margins (หรือ Table Properties › Options)'))}</p>
+        <p class="note">${TT('ทริกจากเอกสาร: ตั้ง Indent ซ้ายของข้อความในเซลล์ให้ติดลบเล็กน้อย ช่วยให้พิมพ์ได้เพิ่ม หรือลดขนาดฟอนต์ในตาราง 1–2 pt ถ้าจำเป็น', 'Tip from the handout: a slightly negative left indent inside cells buys space; shrink table text by 1–2 pt if needed.')}</p>
+        <p class="note">${TT('แถวหัวที่ทำซ้ำต้องเป็นแถวแรกของตาราง และตารางต้องเป็น In line with text', 'Repeated header rows must be the table’s first row(s), and the table must be In Line with Text.')}</p>
+      </div>
+    </div>`;
+}
+
+/* --- Lab: Sections + page numbers --- */
+const SEC_PAGES = [['ปกนอก', 'Cover'], ['บทคัดย่อ', 'Abstract'], ['สารบัญ', 'Contents'], ['สารบัญภาพ / ตาราง', 'List of figures / tables'], ['บทที่ 1 บทนำ', 'Ch. 1 Introduction'], ['บทที่ 1 (ต่อ)', 'Ch. 1 (cont.)'], ['บทที่ 2 ทบทวนวรรณกรรม', 'Ch. 2 Literature review'], ['บทที่ 3 วิธีการศึกษา', 'Ch. 3 Methods'], ['เอกสารอ้างอิง', 'References']];
+function secInit() { S.sec = { breaks: [], set: { 0: { footer: true, fmt: 'arabic', restart: false, link: false } }, sel: 0 }; }
+secInit();
+const roman = n => { const v = [[10, 'x'], [9, 'ix'], [5, 'v'], [4, 'iv'], [1, 'i']]; let o = ''; for (const [a, s] of v) while (n >= a) { o += s; n -= a; } return o; };
+function secList() {
+  const b = S.sec.breaks.slice().sort((x, y) => x - y); const out = []; let s = 0;
+  b.forEach(i => { out.push([s, i]); s = i + 1; }); out.push([s, SEC_PAGES.length - 1]);
+  return out.map(([a, z]) => ({ a, z, cfg: S.sec.set[a] || (S.sec.set[a] = { footer: true, fmt: 'arabic', restart: false, link: true }) }));
+}
+function secCompute() {
+  const secs = secList(); const labels = []; let last = 0; let prevOn = true;
+  secs.forEach((s, si) => {
+    const c = s.cfg; const on = si > 0 && c.link ? prevOn : c.footer; const start = (si === 0 || c.restart) ? 1 : last + 1;
+    for (let p = s.a; p <= s.z; p++) { const n = start + (p - s.a); labels[p] = on ? (c.fmt === 'roman' ? roman(n) : String(n)) : ''; last = n; }
+    prevOn = on; s.on = on;
+  });
+  return { secs, labels };
+}
+function labSections() {
+  const sc = S.sec; const { secs, labels } = secCompute();
+  const want = ['', 'i', 'ii', 'iii', '1', '2', '3', '4', '5']; const ok = want.every((w, i) => labels[i] === w);
+  const si = secs.findIndex(s => sc.sel >= s.a && sc.sel <= s.z); const s = secs[si]; const c = s.cfg;
+  let pages = '';
+  SEC_PAGES.forEach((p, i) => {
+    const sIdx = secs.findIndex(x => i >= x.a && i <= x.z);
+    pages += `<div class="thumb ${sIdx === si ? 'selsec' : ''}" data-pg="${i}">${i === secs[sIdx].a ? `<span class="sx">S${sIdx + 1}</span>` : ''}<span class="tt">${esc(tr(p))}</span><span class="ft">${labels[i] || '&nbsp;'}</span></div>`;
+    if (i < SEC_PAGES.length - 1) { const on = sc.breaks.includes(i); pages += `<button type="button" class="gap ${on ? 'on' : ''}" data-gap="${i}" aria-pressed="${on}" title="Section Break (Next Page)"><span>${on ? '§ Next Page' : '+'}</span></button>`; }
+  });
+  $('#labArea').innerHTML = labHead('sections', ok) + `
+    <div class="task"><b>${esc(t('task'))}:</b> ${TT('ตอนนี้ทั้งเล่มเป็น Section เดียว เลขหน้า 1–9 รวมหน้าปก · ทำให้ได้: ปกไม่มีเลข · บทคัดย่อถึงสารบัญภาพเป็น i, ii, iii · บทที่ 1 เริ่มที่ 1 ต่อเนื่องถึงเอกสารอ้างอิง · คลิกปุ่ม + ระหว่างหน้าเพื่อใส่ Section Break (Next Page) แล้วคลิกหน้าเพื่อตั้งค่า Section นั้น',
+      'Right now the whole file is one section numbered 1–9, cover included · Make it: no number on the cover · Abstract to List of figures numbered i, ii, iii · Chapter 1 starts at 1 and continues to the references · Click + between pages to insert a Section Break (Next Page), then click a page to set up its section')}</div>
+    <div class="spread" style="row-gap:16px">${pages}</div>
+    <div class="side secset">
+      <h4>${TT('Section', 'Section')} ${si + 1} · ${esc(tr(SEC_PAGES[s.a]))}${s.z > s.a ? ' – ' + esc(tr(SEC_PAGES[s.z])) : ''}</h4>
+      <div class="row">
+        <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="secLink" ${si > 0 && c.link ? 'checked' : ''} ${si === 0 ? 'disabled' : ''}> Link to Previous</label>
+        <label style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="secFooter" ${s.on ? 'checked' : ''} ${si > 0 && c.link ? 'disabled' : ''}> ${TT('มีเลขหน้าที่ Footer', 'Page number in footer')}</label>
+      </div>
+      <div class="row">
+        <label for="secFmt" class="small">Number format</label>
+        <select id="secFmt"><option value="arabic" ${c.fmt === 'arabic' ? 'selected' : ''}>1, 2, 3, …</option><option value="roman" ${c.fmt === 'roman' ? 'selected' : ''}>i, ii, iii, …</option></select>
+        <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="secStart" value="cont" ${!c.restart ? 'checked' : ''} ${si === 0 ? 'disabled' : ''}> Continue from previous section</label>
+        <label style="display:flex;gap:6px;align-items:center"><input type="radio" name="secStart" value="one" ${c.restart || si === 0 ? 'checked' : ''}> Start at: 1</label>
+      </div>
+      <p class="note">${esc(K('Footer: ดับเบิลคลิกท้ายกระดาษ › Header & Footer › Link to Previous / Page Number › Format Page Numbers… · Section break: Layout › Breaks › Next Page', 'Footer: ดับเบิลคลิกท้ายกระดาษ › Header & Footer › Link to Previous / Page Number › Format Page Numbers… · Section break: Layout › Breaks › Section Break (Next Page)')).replace('ดับเบิลคลิกท้ายกระดาษ', TT('ดับเบิลคลิกท้ายกระดาษ', 'double-click the footer'))}</p>
+      <p class="note">${TT('ข้อควรจำ: ปิด Link to Previous “ก่อน” ลบหรือเปลี่ยนเลขหน้า ไม่อย่างนั้น Section ก่อนหน้าจะเปลี่ยนตามด้วย', 'Remember: turn off Link to Previous before removing or changing numbers, or the previous section changes too.')}</p>
+    </div>`;
+}
+
+/* --- Lab: Track changes + comments --- */
+const TK_TEXT = {
+  th: ['การศึกษานี้มีวัตถุประสงค์เพื่อประเมินบริการระบบนิเวศของพื้นที่สีเขียวในเมือง โดยใช้ข้อมูลภาคสนามและภาพถ่ายดาวเทียม', 'การศึกษานี้มุ่งประเมินบริการระบบนิเวศด้านการลดอุณหภูมิของพื้นที่สีเขียวในกรุงเทพมหานคร โดยใช้ข้อมูลภาคสนามร่วมกับภาพถ่ายดาวเทียม'],
+  en: ['This study aims to assess the ecosystem services of urban green spaces using field data and satellite imagery.', 'This study assesses the cooling services of urban green spaces in Bangkok using field data combined with satellite imagery.']
+};
+function tok(s) {
+  try { if (Intl.Segmenter) return [...new Intl.Segmenter(S.lang === 'th' ? 'th' : 'en', { granularity: 'word' }).segment(s)].map(x => x.segment); } catch (e) { }
+  return s.split(/(\s+)/).filter(Boolean);
+}
+function lcsOps(a, b) {
+  const n = a.length, m = b.length; const dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+  const ops = []; let i = 0, j = 0;
+  while (i < n && j < m) { if (a[i] === b[j]) { ops.push(['k', i]); i++; j++; } else if (dp[i + 1][j] >= dp[i][j + 1]) { ops.push(['d', i]); i++; } else { ops.push(['i', j]); j++; } }
+  while (i < n) ops.push(['d', i++]); while (j < m) ops.push(['i', j++]);
+  return { ops, b };
+}
+function tkEdit(newText, tracking) {
+  const T = S.tk.toks; const curIdx = []; T.forEach((x, i) => { if (x.type !== 'del') curIdx.push(i); });
+  const { ops, b } = lcsOps(curIdx.map(i => T[i].t), tok(newText)); const out = []; let p = 0;
+  const flush = pos => { while (p < pos) { out.push(T[p]); p++; } };
+  for (const op of ops) {
+    if (op[0] === 'k') { const pos = curIdx[op[1]]; flush(pos); out.push(T[pos]); p = pos + 1; }
+    else if (op[0] === 'd') { const pos = curIdx[op[1]]; flush(pos); const x = T[pos]; p = pos + 1; if (tracking && x.type === 'eq') out.push({ t: x.t, type: 'del' }); }
+    else { while (p < T.length && T[p].type === 'del') { out.push(T[p]); p++; } out.push({ t: b[op[1]], type: tracking ? 'ins' : 'eq' }); }
+  }
+  while (p < T.length) { out.push(T[p]); p++; }
+  S.tk.toks = out;
+}
+function tkGroups() { const g = []; S.tk.toks.forEach((x, i) => { const last = g[g.length - 1]; if (last && last.type === x.type) last.idx.push(i); else g.push({ type: x.type, idx: [i] }); }); return g; }
+function tkInit() {
+  const [o, n] = TK_TEXT[S.lang];
+  S.tk = { lang: S.lang, toks: tok(o).map(x => ({ t: x, type: 'eq' })), track: true, view: 'all', cur: -1, touched: false,
+    comments: [{ who: TT('อ.ที่ปรึกษา', 'Advisor'), text: TT('ระบุชื่อสวนสาธารณะทั้ง 3 แห่งในวัตถุประสงค์ด้วย', 'Name the three parks in the objective.'), res: false }] };
+  tkEdit(n, true);
+}
+tkInit();
+function labTrack() {
+  if (S.tk.lang !== S.lang) tkInit();
+  const tk = S.tk; const G = tkGroups(); const changes = G.map((g, i) => ({ g, i })).filter(x => x.g.type !== 'eq');
+  const open = tk.comments.filter(c => !c.res).length; const ok = tk.touched && changes.length === 0 && open === 0;
+  const text = types => tk.toks.filter(x => types.includes(x.type)).map(x => x.t).join('');
+  let shown = '';
+  if (tk.view === 'all') shown = G.map((g, i) => { const s = esc(g.idx.map(k => tk.toks[k].t).join('')); return g.type === 'eq' ? s : `<span class="${g.type} ${i === tk.cur ? 'cur' : ''}" data-ch="${i}" title="${g.type === 'ins' ? 'Inserted' : 'Deleted'}">${s}</span>`; }).join('');
+  else if (tk.view === 'simple') shown = `<div class="${changes.length ? 'chbar' : ''}">${esc(text(['eq', 'ins']))}</div>`;
+  else if (tk.view === 'none') shown = esc(text(['eq', 'ins']));
+  else shown = esc(text(['eq', 'del']));
+  keepFocus('tkInput', () => {
+    $('#labArea').innerHTML = labHead('track', ok) + `
+    <div class="task"><b>${esc(t('task'))}:</b> ${TT('อาจารย์แก้วัตถุประสงค์มาแบบ Track Changes · ลองพิมพ์แก้เพิ่มในกล่องด้านล่าง (ขณะ Track Changes เปิด) แล้วดูมุมมองต่าง ๆ · จากนั้น Accept/Reject ทีละรายการจนหมด และตอบ/Resolve คอมเมนต์',
+      'Your advisor edited the objective with Track Changes · Type your own edit in the box below (with tracking on) and try the views · Then accept or reject every change and reply/resolve the comment')}</div>
+    <div class="toolbar">
+      <button type="button" class="btn" data-tk="track" aria-pressed="${tk.track}">Track Changes ${keysHTML(K('Ctrl+Shift+E', 'Cmd+Shift+E'))}</button>
+      <select id="tkView" aria-label="Display for review"><option value="all" ${tk.view === 'all' ? 'selected' : ''}>All Markup</option><option value="simple" ${tk.view === 'simple' ? 'selected' : ''}>Simple Markup</option><option value="none" ${tk.view === 'none' ? 'selected' : ''}>No Markup</option><option value="orig" ${tk.view === 'orig' ? 'selected' : ''}>Original</option></select>
+      <span class="sep"></span>
+      <button type="button" class="btn" data-tk="prev" ${changes.length ? '' : 'disabled'}>← Previous</button>
+      <button type="button" class="btn" data-tk="next" ${changes.length ? '' : 'disabled'}>Next →</button>
+      <button type="button" class="btn" data-tk="acc" ${tk.cur >= 0 && G[tk.cur] && G[tk.cur].type !== 'eq' ? '' : 'disabled'}>✓ Accept</button>
+      <button type="button" class="btn" data-tk="rej" ${tk.cur >= 0 && G[tk.cur] && G[tk.cur].type !== 'eq' ? '' : 'disabled'}>✗ Reject</button>
+      <button type="button" class="btn" data-tk="accall" ${changes.length ? '' : 'disabled'}>Accept All</button>
+      <button type="button" class="btn" data-tk="rejall" ${changes.length ? '' : 'disabled'}>Reject All</button>
+    </div>
+    <div class="split r">
+      <div style="display:grid;gap:10px;min-width:0">
+        <div class="doc" style="min-height:0">${shown || '&nbsp;'}</div>
+        <label class="small muted" for="tkInput">${TT('พิมพ์แก้ข้อความตรงนี้', 'Edit the text here')} · ${tk.track ? TT('การแก้จะถูกติดตาม', 'edits are tracked') : TT('Track Changes ปิดอยู่: การแก้จะไม่มีร่องรอย', 'Track Changes is off: edits leave no trace')}</label>
+        <textarea id="tkInput">${esc(text(['eq', 'ins']))}</textarea>
+        <p class="note">${changes.length} ${TT('การแก้ไขที่รอ Accept/Reject · คลิกที่ข้อความสีเพื่อเลือก', 'change(s) waiting · click coloured text to select one')}</p>
+      </div>
+      <div class="side" style="display:grid;gap:10px;align-content:start">
+        <h4>Comments · ${keysHTML(K('Ctrl+Alt+M', 'Cmd+Opt+A'))}</h4>
+        <div class="balloons">${tk.comments.map((c, i) => `<div class="balloon ${c.res ? 'res' : ''}"><b>${esc(c.who)}</b><div>${esc(c.text)}</div><div class="row" style="margin-top:4px"><button type="button" class="btn" data-res="${i}" style="padding:2px 8px;font-size:.8rem">${c.res ? 'Reopen' : 'Resolve'}</button></div></div>`).join('')}</div>
+        <input type="text" id="tkCom" placeholder="${TT('ตอบ/เพิ่มคอมเมนต์…', 'Reply / new comment…')}">
+        <button type="button" class="btn" data-tk="com">New Comment</button>
+      </div>
+    </div>`;
+  });
+}
+function tkAct(a) {
+  const tk = S.tk; const G = tkGroups(); const chIdx = G.map((g, i) => (g.type !== 'eq' ? i : -1)).filter(i => i >= 0);
+  const resolve = (g, accept) => { g.idx.forEach(k => { const x = tk.toks[k]; if (x.type === 'ins') x.type = accept ? 'eq' : 'x'; else if (x.type === 'del') x.type = accept ? 'x' : 'eq'; }); };
+  if (a === 'track') tk.track = !tk.track;
+  else if (a === 'next' || a === 'prev') { if (chIdx.length) { const pos = chIdx.indexOf(tk.cur); tk.cur = a === 'next' ? chIdx[(pos + 1) % chIdx.length] : chIdx[(pos - 1 + chIdx.length) % chIdx.length]; } }
+  else if ((a === 'acc' || a === 'rej') && G[tk.cur]) { resolve(G[tk.cur], a === 'acc'); tk.touched = true; }
+  else if (a === 'accall' || a === 'rejall') { G.forEach(g => resolve(g, a === 'accall')); tk.touched = true; }
+  else if (a === 'com') { const v = ($('#tkCom').value || '').trim(); if (v) tk.comments.push({ who: TT('นิสิต', 'Student'), text: v, res: false }); }
+  tk.toks = tk.toks.filter(x => x.type !== 'x');
+  if (a === 'acc' || a === 'rej') { const nG = tkGroups(); const nxt = nG.findIndex(g => g.type !== 'eq'); tk.cur = nxt; }
+  if (a === 'accall' || a === 'rejall') tk.cur = -1;
+  rerenderLab();
+}
+
+/* ---------- keys view ---------- */
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function ktPool() { return shuffle(KEYS.filter(k => k[S.os] && !(k.nd && k.nd[S.os]))); }
+S.kt = { os: null, pool: [], i: 0, ok: 0, tries: 0, streak: 0, state: '', pressed: '', reveal: false, filter: '' };
+function renderKeys() {
+  const kt = S.kt; if (kt.os !== S.os) { kt.os = S.os; kt.pool = ktPool(); kt.i = 0; kt.state = ''; kt.pressed = ''; kt.reveal = false; }
+  const cur = kt.pool[kt.i % kt.pool.length];
+  const f = kt.filter.trim().toLowerCase();
+  const rows = []; Object.keys(KEYCAT).forEach(c => {
+    const items = KEYS.filter(k => k.c === c && (!f || (k.n[0] + ' ' + k.n[1] + ' ' + k.win + ' ' + k.mac).toLowerCase().includes(f)));
+    if (!items.length) return;
+    rows.push(`<tr class="cat"><td colspan="3">${esc(tr(KEYCAT[c]))}</td></tr>`);
+    items.forEach(k => rows.push(`<tr><td>${esc(tr(k.n))}</td><td class="${S.os === 'win' ? 'cur' : ''}">${k.win ? keysHTML(k.win, 'win') : '<span class="muted">—</span>'}</td><td class="${S.os === 'mac' ? 'cur' : ''}">${k.mac ? keysHTML(k.mac, 'mac') : '<span class="muted">—</span>'}</td></tr>`));
+  });
+  keepFocus('ktPad', () => {
+    $('#v-keys').innerHTML = `
+    <div class="head"><h2>${esc(t('keysTitle'))} · ${OSN[S.os]}</h2><p class="muted">${esc(t('keysLead'))}</p></div>
+    <div class="trainer">
+      <div class="pad ${kt.state}" id="ktPad" tabindex="0" aria-live="polite">
+        <span class="small muted">${esc(tr(KEYCAT[cur.c]))} · ${kt.i % kt.pool.length + 1}/${kt.pool.length}</span>
+        <div class="prompt">${esc(tr(cur.n))}</div>
+        <div class="pressed">${kt.pressed || `<span class="muted small">${TT('คลิกกรอบนี้แล้วกดแป้น', 'Click here, then press the keys')}</span>`}</div>
+        <div class="small" style="min-height:1.6em">${kt.state === 'good' ? `<b style="color:var(--ok)">✓ ${TT('ถูกต้อง', 'Correct')}</b>` : kt.state === 'bad' ? `<b style="color:var(--warn)">${TT('ยังไม่ใช่ ลองอีกครั้ง', 'Not that one, try again')}</b>` : ''}
+          ${kt.reveal || kt.state === 'good' ? `<div style="margin-top:4px">${keysHTML(cur[S.os])}</div>` : ''}</div>
+        <div class="row"><button type="button" class="btn" data-kt="reveal">${TT('ดูเฉลย', 'Show answer')}</button><button type="button" class="btn" data-kt="skip">${TT('ข้าม', 'Skip')} →</button></div>
+      </div>
+      <div style="display:grid;gap:10px;align-content:start">
+        <div class="score"><div><b>${kt.ok}</b><span>${TT('ถูก', 'Correct')}</span></div><div><b>${kt.tries}</b><span>${TT('ครั้งที่กด', 'Attempts')}</span></div><div><b>${kt.streak}</b><span>${TT('ติดต่อกัน', 'Streak')}</span></div></div>
+        <p class="note">${TT('แป้นที่เบราว์เซอร์ยึดไว้ (เช่น ' + K('Ctrl+N, Ctrl+T, F12', 'Cmd+N, Cmd+T') + ') ไม่อยู่ในโหมดฝึก แต่มีในตารางด้านล่าง', 'Keys the browser keeps for itself (like ' + K('Ctrl+N, Ctrl+T, F12', 'Cmd+N, Cmd+T') + ') are left out of the drill but listed in the table below.')}</p>
+        ${S.os === 'mac' ? `<p class="note">${TT('Mac โน้ตบุ๊ก: ปุ่ม F1–F12 อาจต้องกด Fn ร่วมด้วย · ⌥ Option คือปุ่ม Alt บนคีย์บอร์ด Windows ที่ต่อกับ Mac', 'Mac laptops: F1–F12 may need Fn · ⌥ Option is the Alt key on a Windows keyboard plugged into a Mac')}</p>` : `<p class="note">${TT('ใช้แป้นตัวเลขแถวบน (ไม่ใช่ Numpad) สำหรับ Ctrl+Alt+1 และ Ctrl+Shift+8', 'Use the top-row digits (not the numpad) for Ctrl+Alt+1 and Ctrl+Shift+8')}</p>`}
+      </div>
+    </div>
+    <div class="panel" style="display:grid;gap:10px">
+      <div class="row" style="justify-content:space-between"><h3>${esc(t('sheetTitle'))}</h3><input type="text" id="ktFilter" placeholder="${esc(t('sheetFilter'))}" value="${esc(kt.filter)}" aria-label="${esc(t('sheetFilter'))}"></div>
+      <div class="tblwrap"><table class="keys"><thead><tr><th>${TT('คำสั่ง', 'Action')}</th><th>Windows</th><th>Mac</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>
+      <p class="note">${TT('ที่มา: Microsoft Support — Keyboard shortcuts in Word (Windows และ macOS) · Ctrl+Shift+C ในเอกสารประกอบเป็นแป้นรุ่นเก่าที่ยังใช้ได้ใน Windows', 'Source: Microsoft Support — Keyboard shortcuts in Word (Windows and macOS) · Ctrl+Shift+C from the handout is the older key that still works on Windows')}</p>
+    </div>`;
+  });
+}
+function ktKey(e) {
+  if (isModOnly(e)) return;
+  if (e.key === 'Tab' && !e.ctrlKey && !e.metaKey && !e.altKey) return;
+  e.preventDefault(); const kt = S.kt; if (kt.state === 'good') return;
+  const cur = kt.pool[kt.i % kt.pool.length]; kt.tries++; kt.pressed = pressedLabel(e);
+  if (matches(e, cur[S.os])) { kt.ok++; kt.streak++; kt.state = 'good'; renderKeys(); setTimeout(() => { kt.i++; kt.state = ''; kt.pressed = ''; kt.reveal = false; if (S.view === 'keys') renderKeys(); }, 900); }
+  else { kt.streak = 0; kt.state = 'bad'; renderKeys(); }
+}
+
+/* ---------- setup ---------- */
+function renderSetup() {
+  const other = S.os === 'win' ? 'mac' : 'win';
+  $('#v-setup').innerHTML = `
+  <div class="head"><h2>${esc(t('setupTitle'))}</h2><p class="muted">${esc(t('setupLead'))}</p></div>
+  <div class="setlist">${SETUP.map(s => `<div class="setitem"><div><b>${esc(tr(s.n))}</b>${s.from ? `<span class="src">${TT('จากเอกสาร', 'Handout')}</span>` : ''}<p class="small muted" style="margin-top:4px">${esc(tr(s.why))}</p></div>
+    <div style="display:grid;gap:6px;min-width:0"><div class="p2"><span class="small" style="font-weight:700;color:var(--accent)">${OSN[S.os]}</span><br>${esc(tr(s[S.os]))}</div><div class="small muted">${OSN[other]}: ${esc(tr(s[other]))}</div></div></div>`).join('')}</div>
+  <div class="panel" style="display:grid;gap:12px">
+    <h3>${esc(t('iosTitle'))}</h3>
+    <div class="ios"><div><b style="color:var(--ok)">${TT('ทำได้', 'Works well')}</b><ul>${IOS.can.map(x => `<li>${esc(tr(x))}</li>`).join('')}</ul></div>
+    <div><b style="color:var(--warn)">${TT('ทำได้จำกัด', 'Limited')}</b><ul>${IOS.cant.map(x => `<li>${esc(tr(x))}</li>`).join('')}</ul></div></div>
+    <p class="note">${esc(tr(IOS.note))}</p>
+  </div>`;
+}
+
+/* ---------- quiz ---------- */
+S.qz = { i: 0, ans: [] };
+function renderQuiz() {
+  const qz = S.qz; const n = QUIZ.length;
+  let body;
+  if (qz.i >= n) {
+    const score = qz.ans.filter((a, i) => a === QUIZ[i].a).length;
+    body = `<div class="qcard"><h3>${TT('คะแนน', 'Score')}: ${score}/${n}</h3><p>${score >= 8 ? TT('พร้อมจัดรูปแบบ proposal แล้ว', 'You’re ready to format your proposal.') : TT('ลองกลับไปที่ห้องทดลองของข้อที่ผิด แล้วทำใหม่', 'Revisit the labs for the ones you missed, then try again.')}</p>
+      <div class="row"><button type="button" class="btn primary" data-qz="restart">${TT('ทำใหม่', 'Try again')}</button></div></div>`;
+  } else {
+    const q = QUIZ[qz.i]; const a = qz.ans[qz.i];
+    body = `<div class="qcard"><div class="prog"><i style="width:${(qz.i / n) * 100}%"></i></div><span class="small muted">${qz.i + 1}/${n}</span>
+      <h3>${esc(tr(q.q))}</h3>
+      <div class="qopts">${q.o.map((o, i) => `<button type="button" data-qa="${i}" ${a != null ? 'disabled' : ''} class="${a != null ? (i === q.a ? 'right' : i === a ? 'wrong' : '') : ''}">${esc(tr(o))}</button>`).join('')}</div>
+      ${a != null ? `<p class="${a === q.a ? '' : ''}"><b>${a === q.a ? TT('ถูกต้อง', 'Correct') : TT('ยังไม่ใช่', 'Not quite')}.</b> ${esc(tr(q.e))}</p><div class="row"><button type="button" class="btn primary" data-qz="next">${TT('ข้อต่อไป', 'Next')} →</button></div>` : ''}</div>`;
+  }
+  $('#v-quiz').innerHTML = `<div class="head"><h2>${esc(t('quizTitle'))}</h2><p class="muted">${esc(t('quizLead'))}</p></div><div class="panel">${body}</div>`;
+}
+
+/* ---------- checklist ---------- */
+function renderCheck() {
+  const st = store.get('check', []); const done = CHECK.filter((c, i) => st[i]).length;
+  $('#v-check').innerHTML = `
+  <div class="head"><h2>${esc(t('checkTitle'))}</h2><p class="muted">${esc(t('checkLead'))}</p></div>
+  <div class="panel" style="display:grid;gap:10px">
+    <div class="row" style="justify-content:space-between"><b style="font-family:var(--f-display)">${done}/${CHECK.length}</b><button type="button" class="btn" data-ck="reset">${esc(t('reset'))}</button></div>
+    <div class="prog"><i style="width:${(done / CHECK.length) * 100}%;background:var(--ok)"></i></div>
+    <div class="clist">${CHECK.map((c, i) => `<label class="${st[i] ? 'on' : ''}"><input type="checkbox" data-ci="${i}" ${st[i] ? 'checked' : ''}><span>${esc(tr(c))}</span></label>`).join('')}</div>
+  </div>
+  <div style="display:grid;gap:10px"><h3>${esc(t('resTitle'))}</h3>
+  <div class="reslist">${RESOURCES.map(r => `<a href="${esc(r.u)}" target="_blank" rel="noopener"><b>${esc(r.n)}</b><span>${esc(tr(r.d))}</span></a>`).join('')}</div></div>`;
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const el = e.target.closest('button,[data-sel],[data-cb],[data-ch],[data-pg]'); if (!el) return;
+  const d = el.dataset;
+  if (d.os) { S.os = d.os; store.set('os', S.os); applyChrome(); renderView(S.view); return; }
+  if (d.lang) { S.lang = d.lang; store.set('lang', S.lang); applyChrome(); renderView(S.view); return; }
+  if (d.go) { go(d.go); return; }
+  if (d.rtab) { S.rtab = d.rtab; S.ritem = RIBBON.find(r => r.id === d.rtab).items[0].id; history.replaceState(null, '', '#ribbon-' + d.rtab); renderRibbon(); return; }
+  if (d.ritem) { S.ritem = d.ritem; renderRibbon(); return; }
+  if (d.jump) { const [a, b] = d.jump.split(':'); S.rtab = a; S.ritem = b; history.replaceState(null, '', '#ribbon-' + a); renderRibbon(); return; }
+  if (d.lab) { go('lab:' + d.lab); return; }
+  if (d.reset) { ({ styles: stInit, captions: capInit, marks: mkInit, indent: () => { S.ind = { fx: 0, ox: 0, size: 16, hard: false }; }, tabs: () => { S.tb.stops = { budget: [], sign: [] }; S.tb.sel = -1; }, table: () => { S.tbl = { rep: false, pad: 0.19, ind: 0 }; }, sections: secInit, track: tkInit })[d.reset](); rerenderLab(); return; }
+  /* styles lab */
+  if (d.style) { stApply(d.style); $('#stDoc') && $('#stDoc').focus({ preventScroll: true }); return; }
+  if (d.mv) { const [id, dir] = d.mv.split(':').map(Number); stMove(id, dir); e.stopPropagation(); rerenderLab(); return; }
+  if (d.st === 'num') { S.st.num = !S.st.num; rerenderLab(); return; }
+  if (d.st === 'toc') { S.st.toc = stHeads(); rerenderLab(); return; }
+  if (d.sel != null && el.closest('#labArea') && S.lab === 'styles') { S.st.sel = +d.sel; rerenderLab(); $('#stDoc') && $('#stDoc').focus({ preventScroll: true }); return; }
+  /* captions */
+  if (d.cap) { capAct(d.cap); return; }
+  if (d.cb) { S.cap.sel = d.cb; rerenderLab(); $('#capDoc') && $('#capDoc').focus({ preventScroll: true }); return; }
+  /* marks */
+  if (d.mk === 'show') { S.mk.show = !S.mk.show; rerenderLab(); return; }
+  if (d.mk === 'undo') { if (S.mk.undo.length) { S.mk.text = S.mk.undo.pop(); S.mk.msg = ''; } rerenderLab(); return; }
+  if (d.mk === 'all') { mkReplaceAll(); return; }
+  if (d.sp) { const id = S.mk.lastF || 'mkFind'; const key = id === 'mkRepl' ? 'repl' : 'find'; S.mk[key] += d.sp; rerenderLab(); const inp = $('#' + id); if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); } return; }
+  /* indent */
+  if (d.ind) { const x = S.ind; const hanging = x.ox > x.fx + 0.01; const left = hanging ? x.fx : x.ox; let by = hanging ? x.ox - x.fx : 0;
+    if (d.ind === 't') by = hanging ? by + 1.27 : 1.27; else by = Math.max(0, by - 1.27);
+    indSet(left, by > 0.001 ? 'hanging' : 'none', by); indPaint(); return; }
+  /* tabs */
+  if (d.tbset) { S.tb.set = d.tbset; S.tb.sel = -1; rerenderLab(); return; }
+  if (d.tb === 'type') { const o = ['L', 'C', 'R', 'D']; S.tb.type = o[(o.indexOf(S.tb.type) + 1) % 4]; rerenderLab(); return; }
+  if (d.tb === 'clear') { S.tb.stops[S.tb.set] = []; S.tb.sel = -1; rerenderLab(); return; }
+  /* sections */
+  if (d.gap != null) { const i = +d.gap; const b = S.sec.breaks; const k = b.indexOf(i); if (k >= 0) { b.splice(k, 1); delete S.sec.set[i + 1]; } else b.push(i); rerenderLab(); return; }
+  if (d.pg != null) { S.sec.sel = +d.pg; rerenderLab(); return; }
+  /* track */
+  if (d.tk) { tkAct(d.tk); return; }
+  if (d.ch != null) { S.tk.cur = +d.ch; rerenderLab(); return; }
+  if (d.res != null) { const c = S.tk.comments[+d.res]; c.res = !c.res; S.tk.touched = true; rerenderLab(); return; }
+  /* keys */
+  if (d.kt === 'reveal') { S.kt.reveal = true; renderKeys(); return; }
+  if (d.kt === 'skip') { S.kt.i++; S.kt.state = ''; S.kt.pressed = ''; S.kt.reveal = false; S.kt.streak = 0; renderKeys(); return; }
+  /* quiz */
+  if (d.qa != null) { S.qz.ans[S.qz.i] = +d.qa; renderQuiz(); return; }
+  if (d.qz === 'next') { S.qz.i++; renderQuiz(); return; }
+  if (d.qz === 'restart') { S.qz = { i: 0, ans: [] }; renderQuiz(); return; }
+  if (d.ck === 'reset') { store.set('check', []); renderCheck(); return; }
+});
+document.addEventListener('input', e => {
+  const el = e.target; const id = el.id;
+  if (id === 'rq') { S.rq = el.value; const pos = el.selectionStart; renderRibbon(); const n = $('#rq'); n.focus(); n.setSelectionRange(pos, pos); return; }
+  if (id === 'mkFind' || id === 'mkRepl') { S.mk[id === 'mkFind' ? 'find' : 'repl'] = el.value; S.mk.lastF = id; S.mk.msg = ''; const pos = el.selectionStart; rerenderLab(); const n = $('#' + id); n.focus(); n.setSelectionRange(pos, pos); return; }
+  if (id === 'indLeft' || id === 'indBy' || id === 'indSpec') { const spec = $('#indSpec').value; let by = +$('#indBy').value; if (id === 'indSpec' && spec !== 'none' && by < 0.01) { by = 1.27; $('#indBy').value = by; } indSet(+$('#indLeft').value, spec, spec === 'none' ? 0 : by); indPaint(); return; }
+  if (id === 'indSize') { S.ind.size = +el.value; indPaint(); return; }
+  if (id === 'tblPad' || id === 'tblInd') { const k = id === 'tblPad' ? 'pad' : 'ind'; S.tbl[k] = +el.value; $('#tblPages').style.setProperty('--' + k, el.value + 'cm'); $(k === 'pad' ? '#oPad' : '#oInd').textContent = (+el.value).toFixed(2) + ' cm'; setDone('table', S.tbl.rep && S.tbl.pad <= 0.1 + 1e-9); return; }
+  if (id === 'tkInput') { const pos = el.selectionStart; tkEdit(el.value, S.tk.track); S.tk.touched = true; S.tk.cur = -1; rerenderLab(); const n = $('#tkInput'); n.focus(); n.setSelectionRange(pos, pos); return; }
+  if (id === 'ktFilter') { S.kt.filter = el.value; const pos = el.selectionStart; renderKeys(); const n = $('#ktFilter'); n.focus(); n.setSelectionRange(pos, pos); return; }
+});
+document.addEventListener('change', e => {
+  const el = e.target; const id = el.id;
+  if (id === 'mkCase') { S.mk.cs = el.checked; rerenderLab(); return; }
+  if (id === 'indHard') { S.ind.hard = el.checked; rerenderLab(); return; }
+  if (id === 'indSpec') return;
+  if (id === 'tbLeader') { const s = S.tb.stops[S.tb.set][S.tb.sel]; if (s) s.leader = el.value; rerenderLab(); return; }
+  if (id === 'tblRep') { S.tbl.rep = el.checked; rerenderLab(); return; }
+  if (id === 'tkView') { S.tk.view = el.value; rerenderLab(); return; }
+  if (id === 'secLink' || id === 'secFooter' || id === 'secFmt' || el.name === 'secStart') {
+    const { secs } = secCompute(); const s = secs.find(x => S.sec.sel >= x.a && S.sec.sel <= x.z); const c = s.cfg;
+    if (id === 'secLink') { c.link = el.checked; if (!el.checked) { const si = secs.indexOf(s); c.footer = si > 0 ? secs[si - 1].on : true; } }
+    if (id === 'secFooter') c.footer = el.checked;
+    if (id === 'secFmt') c.fmt = el.value;
+    if (el.name === 'secStart') c.restart = el.value === 'one';
+    rerenderLab(); return;
+  }
+  if (el.dataset.ci != null) { const st = store.get('check', []); st[+el.dataset.ci] = el.checked; store.set('check', st); renderCheck(); return; }
+});
+document.addEventListener('focusin', e => { if (e.target.id === 'mkFind' || e.target.id === 'mkRepl') S.mk.lastF = e.target.id; });
+document.addEventListener('keydown', e => {
+  const id = e.target.id;
+  if (id === 'ktPad') { ktKey(e); return; }
+  if (S.view === 'labs') {
+    if (id === 'stDoc') { stKey(e); return; }
+    if (S.lab === 'captions' && !/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) { capKey(e); return; }
+    if (S.lab === 'marks' && matches(e, K('Ctrl+Shift+8', '___'))) { e.preventDefault(); S.mk.show = !S.mk.show; rerenderLab(); return; }
+    if (S.lab === 'marks' && (id === 'mkFind' || id === 'mkRepl') && e.key === 'Enter') { e.preventDefault(); mkReplaceAll(); return; }
+    if (S.lab === 'track' && matches(e, K('Ctrl+Shift+E', 'Cmd+Shift+E'))) { e.preventDefault(); tkAct('track'); return; }
+    if (S.lab === 'track' && id === 'tkCom' && e.key === 'Enter') { e.preventDefault(); tkAct('com'); return; }
+  }
+  if (S.view === 'ribbon' && matches(e, 'Alt+Q') && S.os === 'win') { e.preventDefault(); const q = $('#rq'); if (q) q.focus(); }
+});
+let rzT; window.addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(() => { if (S.view === 'labs' && S.lab === 'tabs') tbDraw(); }, 120); });
+window.addEventListener('hashchange', route);
+applyChrome(); route();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (S.view === 'labs' && S.lab === 'tabs') tbDraw(); });
+
+</script>
+</body>
+</html>
